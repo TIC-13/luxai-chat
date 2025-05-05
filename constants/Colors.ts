@@ -14,6 +14,15 @@ export const Colors = {
     icon: '#687076',
     tabIconDefault: '#687076',
     tabIconSelected: tintColorLight,
+
+    userBubble: '#E1F5FE',
+    systemBubble: '#E0E0E0',
+
+    messageInputField: '#F5F5F5',
+    placeholderTextColor: '#B0BEC5',
+
+    iconContainer: '#F5F5F5',
+    iconColor: '#11181C',
   },
   dark: {
     text: '#ECEDEE',
@@ -22,5 +31,14 @@ export const Colors = {
     icon: '#9BA1A6',
     tabIconDefault: '#9BA1A6',
     tabIconSelected: tintColorDark,
+    
+    userBubble: '#0A7EA4',
+    systemBubble: '#2C2F33',
+
+    messageInputField: '#2C2F33',
+    placeholderTextColor: '#B0BEC5',
+
+    iconContainer: '#2C2F33',
+    iconColor: '#ECEDEE',
   },
 };
