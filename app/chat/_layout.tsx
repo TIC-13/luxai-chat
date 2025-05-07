@@ -1,31 +1,55 @@
-import { Message } from "@/app/chat/types/message";
 import { ThemedSafeAreaView } from "@/components/ThemedSafeAreaView";
-import { KeyboardAvoidingView, StyleSheet, View } from "react-native";
+import { useEffect, useRef } from "react";
+import { KeyboardAvoidingView, Platform, StyleSheet, View } from "react-native";
 import Animated from "react-native-reanimated";
 import MessageBubble from "./components/MessageBubble";
 import MessageInputField from "./components/MessageInputField";
+import useLLM from "./hooks/useLLM";
 
 export default function ChatLayout() {
+
+    const { messages, sendMessage, isUnableToSend } = useLLM()
+    const scrollViewRef = useRef<Animated.ScrollView>(null);
+
+    useEffect(() => {
+        if (scrollViewRef.current) {
+            scrollViewRef.current.scrollToEnd({ animated: true });
+        }
+    }, [messages]);
+
     return (
-        <ThemedSafeAreaView style = {{flex: 1}}>
-            <KeyboardAvoidingView style={styles.mainContainer}>
-                <Animated.ScrollView style={styles.bubblesContainer}>
+        <ThemedSafeAreaView style={{ flex: 1 }}>
+            <KeyboardAvoidingView
+                style={styles.mainContainer}
+                behavior={Platform.OS === "ios" ? "padding" : "height"}
+                keyboardVerticalOffset={Platform.OS === "ios" ? 60 : 0}
+            >
+                <Animated.ScrollView
+                    ref={scrollViewRef}
+                    style={styles.bubblesContainer}
+                >
                     {
                         messages.map((message, index) => (
                             <View
+                                key={index}
                                 style={[
                                     styles.bubbleContainer,
-                                    message.sender === 'user' ? styles.userBubbleContainer : styles.systemBubbleContainer
+                                    message.role === 'user' ? styles.userBubbleContainer : styles.systemBubbleContainer
                                 ]}
                             >
                                 <MessageBubble key={index} message={message} />
                             </View>
                         ))
                     }
-                    <View style = {{height: 15}}/>
+                    <View style={{ height: 15 }} />
                 </Animated.ScrollView>
                 <View style={styles.messageInputContainer}>
-                    <MessageInputField />
+                    <MessageInputField
+                        isLoading={isUnableToSend}
+                        onSend={(prompt) => {
+                            sendMessage(prompt)
+                        }}
+                    />
                 </View>
             </KeyboardAvoidingView>
         </ThemedSafeAreaView>
@@ -37,14 +61,13 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: "center",
         alignItems: "center",
-        paddingTop: 20
+        //paddingVertical: 0,
     },
     bubblesContainer: {
         rowGap: 10,
         paddingHorizontal: 20,
         width: '100%',
         flex: 1,
-        //justifyContent: "center",
     },
     bubbleContainer: {
         width: '100%',
@@ -58,22 +81,8 @@ const styles = StyleSheet.create({
     messageInputContainer: {
         width: '100%',
         paddingHorizontal: 10,
+        paddingVertical: 0,
         justifyContent: "center",
         alignItems: "center",
     }
 })
-
-const messages: Message[] = [
-    { sender: 'user', text: 'Hello!' },
-    { sender: 'system', text: 'Hi there!' },
-    { sender: 'user', text: 'How are you?' },
-    { sender: 'system', text: 'I am fine, thank you!' },
-    { sender: 'user', text: 'What about you?' },
-    { sender: 'system', text: 'I am just a computer program, so I don\'t have feelings.' },
-    { sender: 'user', text: 'Hello!' },
-    { sender: 'system', text: 'Hi there!' },
-    { sender: 'user', text: 'How are you?' },
-    { sender: 'system', text: 'I am fine, thank you!' },
-    { sender: 'user', text: 'What about you?' },
-    { sender: 'system', text: 'I am just a computer program, so I don\'t have feelings.' },
-]

@@ -1,10 +1,10 @@
-import { Message } from "@/app/chat/types/message";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { useThemeColor } from "@/hooks/useThemeColor";
+import { RNLlamaOAICompatibleMessage } from "llama.rn";
 import { StyleSheet } from "react-native";
 
-export default function MessageBubble({ message }: { message: Message }) {
+export default function MessageBubble({ message }: { message: RNLlamaOAICompatibleMessage }) {
     
     const userBubbleColor = useThemeColor('userBubble')
     const systemBubbleColor = useThemeColor('systemBubble')
@@ -12,12 +12,12 @@ export default function MessageBubble({ message }: { message: Message }) {
     return (
         <ThemedView 
             style={[
-                {backgroundColor: message.sender === 'user' ? userBubbleColor : systemBubbleColor},
+                {backgroundColor: message.role === 'user' ? userBubbleColor : systemBubbleColor},
                 styles.bubble,
-                message.sender === 'user' ? styles.userBubble : styles.systemBubble
+                message.role === 'user' ? styles.userBubble : styles.systemBubble
             ]}
         >
-            <ThemedText>{message.text}</ThemedText>
+            <ThemedText>{message.content}</ThemedText>
         </ThemedView>
     )
 }

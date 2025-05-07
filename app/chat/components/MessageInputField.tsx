@@ -1,9 +1,14 @@
-import { ThemedView } from "@/components/ThemedView";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { StyleSheet, TextInput } from "react-native";
+import { useState } from "react";
+import { ActivityIndicator, Keyboard, Pressable, StyleSheet, TextInput, View } from "react-native";
 
-export default function MessageInputField() {
+type MessageInputFieldProps = {
+    isLoading: boolean,
+    onSend: (prompt: string) => void,
+}
+
+export default function MessageInputField({ isLoading, onSend }: MessageInputFieldProps) {
 
     const backgroundColor = useThemeColor('messageInputField')
     const placeholderTextColor = useThemeColor('placeholderTextColor')
@@ -11,17 +16,38 @@ export default function MessageInputField() {
     const iconContainer = useThemeColor('iconContainer')
     const iconColor = useThemeColor('iconColor')
 
+    const [text, onChangeText] = useState<string>("")
+
+    const submitText = () => {
+        Keyboard.dismiss()
+        onSend(text)
+        onChangeText("")
+    }
+
     return (
-        <ThemedView style = {[styles.inputContainer, {backgroundColor}]}>
+        <View style={[styles.inputContainer, { backgroundColor }]}>
             <TextInput
                 placeholder="Write your text here..."
                 placeholderTextColor={placeholderTextColor}
-                style = {{ flex: 1, color: textColor}}
+                value = {text}
+                onChangeText={onChangeText}
+                onSubmitEditing={submitText}
+                style={{ flex: 1, color: textColor }}
             />
-            <ThemedView style = {[styles.sendIconContainer, {backgroundColor: iconContainer}]}>
-                <MaterialCommunityIcons name = "send" color = {iconColor} size={20}/>
-            </ThemedView>
-        </ThemedView>
+            <View style={[styles.sendIconContainer, { backgroundColor: iconContainer }]}>
+                {
+                    isLoading ?
+                        <ActivityIndicator color={iconColor} size={20} /> :
+                        <Pressable
+                            android_ripple={{ color: iconContainer }}
+                            onPress={submitText}
+                        >
+                            <MaterialCommunityIcons name="send" color={iconColor} size={20} />
+                        </Pressable>
+
+                }
+            </View>
+        </View>
     )
 }
 
@@ -37,10 +63,10 @@ const styles = StyleSheet.create({
         borderRadius: 20,
     },
     sendIconContainer: {
-        padding: 10, 
-        backgroundColor: 'blue', 
-        borderRadius: 15, 
-        justifyContent: "center", 
+        padding: 10,
+        backgroundColor: 'blue',
+        borderRadius: 15,
+        justifyContent: "center",
         alignItems: "center"
     }
 })
