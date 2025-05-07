@@ -1,14 +1,15 @@
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useState } from "react";
-import { ActivityIndicator, Keyboard, Pressable, StyleSheet, TextInput, View } from "react-native";
+import { ActivityIndicator, Pressable, StyleSheet, TextInput, View } from "react-native";
 
 type MessageInputFieldProps = {
     isLoading: boolean,
     onSend: (prompt: string) => void,
+    onPress?: () => void
 }
 
-export default function MessageInputField({ isLoading, onSend }: MessageInputFieldProps) {
+export default function MessageInputField({ isLoading, onSend, onPress }: MessageInputFieldProps) {
 
     const backgroundColor = useThemeColor('messageInputField')
     const placeholderTextColor = useThemeColor('placeholderTextColor')
@@ -19,7 +20,6 @@ export default function MessageInputField({ isLoading, onSend }: MessageInputFie
     const [text, onChangeText] = useState<string>("")
 
     const submitText = () => {
-        Keyboard.dismiss()
         onSend(text)
         onChangeText("")
     }
@@ -33,6 +33,7 @@ export default function MessageInputField({ isLoading, onSend }: MessageInputFie
                 onChangeText={onChangeText}
                 onSubmitEditing={submitText}
                 style={{ flex: 1, color: textColor }}
+                onPress={onPress}
             />
             <View style={[styles.sendIconContainer, { backgroundColor: iconContainer }]}>
                 {

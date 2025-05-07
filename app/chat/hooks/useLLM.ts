@@ -27,23 +27,26 @@ export default function useLLM() {
 
         setIsDecoding(true)
         const newMessage = { role: 'user', content: prompt }
-        setMessages(prevMessages => [...prevMessages, newMessage])
 
-        completePrompt({
-            context: llama,
-            messages: [
-                {
-                    role: 'system',
-                    content: 'This is a conversation between user and assistant, a friendly chatbot.',
+        setMessages(prevMessages => {
+            const newMessages = [...prevMessages, newMessage]
+            completePrompt({
+                context: llama,
+                messages: [
+                    {
+                        role: 'system',
+                        content: 'This is a conversation between user and assistant, a friendly chatbot.',
+                    },
+                    ...newMessages
+                ],
+                onEnd: () => {
+                    setIsDecoding(false)
                 },
-                ...messages
-            ],
-            onEnd: () => {
-                setIsDecoding(false)
-            },
-            onDecodeToken: (token) => {
-                addTokenToLastLLMMessage(token)
-            }
+                onDecodeToken: (token) => {
+                    addTokenToLastLLMMessage(token)
+                }
+            })
+            return newMessages
         })
     }
 

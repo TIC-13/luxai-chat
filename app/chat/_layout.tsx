@@ -11,10 +11,14 @@ export default function ChatLayout() {
     const { messages, sendMessage, isUnableToSend } = useLLM()
     const scrollViewRef = useRef<Animated.ScrollView>(null);
 
-    useEffect(() => {
+    function rollToBottom() {
         if (scrollViewRef.current) {
             scrollViewRef.current.scrollToEnd({ animated: true });
         }
+    }
+
+    useEffect(() => {
+        rollToBottom()
     }, [messages]);
 
     return (
@@ -49,6 +53,7 @@ export default function ChatLayout() {
                         onSend={(prompt) => {
                             sendMessage(prompt)
                         }}
+                        onPress={rollToBottom}
                     />
                 </View>
             </KeyboardAvoidingView>
