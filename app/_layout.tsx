@@ -20,8 +20,8 @@ export default function RootLayout() {
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-        <Stack initialRouteName="chat">
-            <Stack.Screen name="chat" options={{ headerShown: false }} />
+        <Stack>
+            <Stack.Screen name="(chat)/index" options={{ headerShown: false }} />
             <Stack.Screen name="+not-found" />
         </Stack>
       <StatusBar style="auto" />

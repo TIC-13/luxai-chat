@@ -1,10 +1,10 @@
 import { ThemedSafeAreaView } from "@/components/ThemedSafeAreaView";
+import MessageBubble from "@/src/chat/components/MessageBubble";
+import MessageInputField from "@/src/chat/components/MessageInputField";
+import useLLM from "@/src/chat/hooks/useLLM";
 import { useEffect, useRef } from "react";
 import { KeyboardAvoidingView, Platform, StyleSheet, View } from "react-native";
 import Animated from "react-native-reanimated";
-import MessageBubble from "./components/MessageBubble";
-import MessageInputField from "./components/MessageInputField";
-import useLLM from "./hooks/useLLM";
 
 export default function ChatLayout() {
 

@@ -34,6 +34,7 @@ export default function MessageInputField({ isLoading, onSend, onPress }: Messag
                 onSubmitEditing={submitText}
                 style={{ flex: 1, color: textColor }}
                 onPress={onPress}
+                submitBehavior="submit"
             />
             <View style={[styles.sendIconContainer, { backgroundColor: iconContainer }]}>
                 {
