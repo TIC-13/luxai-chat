@@ -15,6 +15,10 @@ export const Colors = {
     tabIconDefault: '#687076',
     tabIconSelected: tintColorLight,
 
+    headerBackground: '#F5F5F5',
+    headerTint: '#11181C',
+    headerTintInactive: '#B0BEC5',
+
     userBubble: '#E1F5FE',
     systemBubble: '#E0E0E0',
 
@@ -32,6 +36,10 @@ export const Colors = {
     tabIconDefault: '#9BA1A6',
     tabIconSelected: tintColorDark,
     
+    headerBackground: '#2C2F33',
+    headerTint: '#ECEDEE',
+    headerTintInactive: '#B0BEC5',
+
     userBubble: '#0A7EA4',
     systemBubble: '#2C2F33',
 

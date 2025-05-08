@@ -1,25 +1,28 @@
 import { ThemedSafeAreaView } from "@/components/ThemedSafeAreaView";
+import { useThemeColor } from "@/hooks/useThemeColor";
 import MessageBubble from "@/src/chat/components/MessageBubble";
 import MessageInputField from "@/src/chat/components/MessageInputField";
 import useLLM from "@/src/chat/hooks/useLLM";
-import { useEffect, useRef } from "react";
+import rollToBottom from '@/src/chat/utils/rollToTheBottom';
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { useHeaderHeight } from "@react-navigation/elements";
+import { Stack } from "expo-router";
+import { useRef } from "react";
 import { KeyboardAvoidingView, Platform, StyleSheet, View } from "react-native";
+import { RectButton } from "react-native-gesture-handler";
 import Animated from "react-native-reanimated";
 
 export default function ChatLayout() {
 
-    const { messages, sendMessage, isUnableToSend } = useLLM()
+    const headerBackground = useThemeColor('headerBackground');
+    const headerTint = useThemeColor('headerTint');
+    const headerTintInactive = useThemeColor('headerTintInactive');
+
     const scrollViewRef = useRef<Animated.ScrollView>(null);
-
-    function rollToBottom() {
-        if (scrollViewRef.current) {
-            scrollViewRef.current.scrollToEnd({ animated: true });
-        }
-    }
-
-    useEffect(() => {
-        rollToBottom()
-    }, [messages]);
+    const { messages, sendMessage, isUnableToSend, reload } = useLLM({
+        onMessagesUpdate: () => rollToBottom(scrollViewRef)
+    })
+    const headerHeight = useHeaderHeight()
 
     return (
         <ThemedSafeAreaView style={{ flex: 1 }}>
@@ -32,6 +35,7 @@ export default function ChatLayout() {
                     ref={scrollViewRef}
                     style={styles.bubblesContainer}
                 >
+                    <View style={{ height: headerHeight }} />
                     {
                         messages.map((message, index) => (
                             <View
@@ -53,10 +57,32 @@ export default function ChatLayout() {
                         onSend={(prompt) => {
                             sendMessage(prompt)
                         }}
-                        onPress={rollToBottom}
+                        onPress={() => rollToBottom(scrollViewRef)}
                     />
                 </View>
             </KeyboardAvoidingView>
+            <Stack.Screen
+                options={{
+                    headerTransparent: true,
+                    headerTitle: "LuxAI Chat",
+                    headerTitleAlign: 'center',
+                    headerStyle: {
+                        backgroundColor: headerBackground,
+                    },
+                    headerTintColor: headerTint,
+                    headerRight: () => 
+                        <RectButton onPress={reload}>
+                            <MaterialCommunityIcons 
+                                name="reload" 
+                                color={isUnableToSend? 
+                                    headerTintInactive: headerTint
+                                } 
+                                size={20} 
+                                onPress={isUnableToSend? () => null: reload} 
+                            />
+                        </RectButton>
+                }}
+            />
         </ThemedSafeAreaView>
     )
 }
@@ -66,7 +92,6 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: "center",
         alignItems: "center",
-        //paddingVertical: 0,
     },
     bubblesContainer: {
         rowGap: 10,

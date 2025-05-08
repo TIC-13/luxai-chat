@@ -5,6 +5,7 @@ import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 
 export default function RootLayout() {
@@ -20,10 +21,12 @@ export default function RootLayout() {
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+      <GestureHandlerRootView>
         <Stack>
-            <Stack.Screen name="(chat)/index" options={{ headerShown: false }} />
-            <Stack.Screen name="+not-found" />
+          <Stack.Screen name="(chat)/index" />
+          <Stack.Screen name="+not-found" />
         </Stack>
+      </GestureHandlerRootView>
       <StatusBar style="auto" />
     </ThemeProvider>
   );
