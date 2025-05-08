@@ -1,0 +1,3 @@
+[submodule "android/rag-android"]
+	path = android/rag-android
+	url = https://github.com/TIC-13/rag-android

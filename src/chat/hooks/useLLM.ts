@@ -1,20 +1,23 @@
 import * as FileSystem from 'expo-file-system';
 import { initLlama, LlamaContext, RNLlamaOAICompatibleMessage } from "llama.rn";
 import { useEffect, useState } from "react";
+import Rag from '../utils/rag';
 
 type useLLMProps = {
     onMessagesUpdate?: (messages: RNLlamaOAICompatibleMessage[]) => void
 }
 
-export default function useLLM({onMessagesUpdate}: useLLMProps) {
+export default function useLLM({ onMessagesUpdate }: useLLMProps) {
 
     const [llama, setLlama] = useState<LlamaContext | null>(null)
+    const [ragLoaded, setRagLoaded] = useState(false)
     const [messages, setMessages] = useState<RNLlamaOAICompatibleMessage[]>([])
 
     const [isDecoding, setIsDecoding] = useState(false)
 
     useEffect(() => {
         reload()
+        loadRAG().then(() => setRagLoaded(true))
     }, [])
 
     useEffect(() => {
@@ -22,7 +25,7 @@ export default function useLLM({onMessagesUpdate}: useLLMProps) {
     }, [messages]);
 
     const isLoading = llama === null
-    const isUnableToSend = isLoading || isDecoding
+    const isUnableToSend = isLoading || isDecoding || !ragLoaded
 
     function reload() {
         if (isDecoding)
@@ -35,26 +38,31 @@ export default function useLLM({onMessagesUpdate}: useLLMProps) {
         })
     }
 
-    function sendMessage(prompt: string) {
+    async function sendMessage(prompt: string) {
         if (llama === null)
             throw new Error("Model is not initialized yet")
 
         if (isDecoding)
             throw new Error("Model is already decoding")
 
-        setIsDecoding(true)
-        const newMessage = { role: 'user', content: prompt }
+        if(!ragLoaded)
+            throw new Error("RAG is not loaded yet")
 
+        const ragContext = await Rag.getPrompt(prompt, 2)
+
+        setIsDecoding(true)
+      
         setMessages(prevMessages => {
-            const newMessages = [...prevMessages, newMessage]
+            const newMessagesWithoutContext = [...prevMessages, { role: 'user', content: prompt }]
+            const newMessagesWithContext = [...prevMessages, { role: 'user', content: ragContext.userMessage }]
             completePrompt({
                 context: llama,
                 messages: [
                     {
                         role: 'system',
-                        content: 'This is a conversation between user and assistant, a friendly chatbot.',
+                        content: ragContext.systemMessage,
                     },
-                    ...newMessages
+                    ...newMessagesWithContext
                 ],
                 onEnd: () => {
                     setIsDecoding(false)
@@ -63,7 +71,7 @@ export default function useLLM({onMessagesUpdate}: useLLMProps) {
                     addTokenToLastLLMMessage(token)
                 }
             })
-            return newMessages
+            return newMessagesWithoutContext
         })
     }
 
@@ -92,6 +100,16 @@ async function loadLLM(modelPath: string = FileSystem.cacheDirectory + "qwen2.5-
         n_ctx: 2048,
         n_gpu_layers: 99,
     })
+}
+
+async function loadRAG() {
+    console.log("Loading RAG...")
+    await Rag.loadFromInternalStorage(
+        "model.onnx",
+        "tokenizer.json",
+        "embeddings.csv",
+        "chunks.csv"
+    )
 }
 
 type CompletionProps = {
