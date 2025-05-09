@@ -42,7 +42,7 @@ export default function ChatLayout() {
                                 key={index}
                                 style={[
                                     styles.bubbleContainer,
-                                    message.role === 'user' ? styles.userBubbleContainer : styles.systemBubbleContainer
+                                    message.message.role === 'user' ? styles.userBubbleContainer : styles.systemBubbleContainer
                                 ]}
                             >
                                 <MessageBubble key={index} message={message} />

@@ -1,17 +1,18 @@
+import { LLMMessage } from '@/src/chat/types/LLMMessage';
+import Rag from '@/src/chat/utils/rag';
 import * as FileSystem from 'expo-file-system';
 import { initLlama, LlamaContext, RNLlamaOAICompatibleMessage } from "llama.rn";
 import { useEffect, useState } from "react";
-import Rag from '../utils/rag';
 
 type useLLMProps = {
-    onMessagesUpdate?: (messages: RNLlamaOAICompatibleMessage[]) => void
+    onMessagesUpdate?: (messages: LLMMessage[]) => void
 }
 
 export default function useLLM({ onMessagesUpdate }: useLLMProps) {
 
     const [llama, setLlama] = useState<LlamaContext | null>(null)
     const [ragLoaded, setRagLoaded] = useState(false)
-    const [messages, setMessages] = useState<RNLlamaOAICompatibleMessage[]>([])
+    const [messages, setMessages] = useState<LLMMessage[]>([])
 
     const [isDecoding, setIsDecoding] = useState(false)
 
@@ -21,6 +22,7 @@ export default function useLLM({ onMessagesUpdate }: useLLMProps) {
     }, [])
 
     useEffect(() => {
+        console.log("Messages: ", messages.map(it => it.message))
         onMessagesUpdate?.(messages)
     }, [messages]);
 
@@ -40,51 +42,58 @@ export default function useLLM({ onMessagesUpdate }: useLLMProps) {
 
     async function sendMessage(prompt: string) {
         if (llama === null)
-            throw new Error("Model is not initialized yet")
+            throw new Error("Model is not initialized yet");
 
         if (isDecoding)
-            throw new Error("Model is already decoding")
+            throw new Error("Model is already decoding");
 
-        if(!ragLoaded)
-            throw new Error("RAG is not loaded yet")
+        if (!ragLoaded)
+            throw new Error("RAG is not loaded yet");
 
-        const ragContext = await Rag.getPrompt(prompt, 2)
+        setIsDecoding(true);
 
-        setIsDecoding(true)
+        const ragOutput = await Rag.getPrompt(prompt, 2);
       
-        setMessages(prevMessages => {
-            const newMessagesWithoutContext = [...prevMessages, { role: 'user', content: prompt }]
-            const newMessagesWithContext = [...prevMessages, { role: 'user', content: ragContext.userMessage }]
-            completePrompt({
-                context: llama,
-                messages: [
-                    {
-                        role: 'system',
-                        content: ragContext.systemMessage,
-                    },
-                    ...newMessagesWithContext
-                ],
-                onEnd: () => {
-                    setIsDecoding(false)
+        const newMessagesWithoutContextInPrompt = [
+            ...messages,
+            { message: { role: 'user', content: prompt } },
+        ];
+
+        const newMessagesWithContextInPrompt = [
+            ...messages,
+            { message: { role: 'user', content: ragOutput.userMessage } },
+        ];
+
+        setMessages(newMessagesWithoutContextInPrompt);
+
+        completePrompt({
+            context: llama,
+            messages: [
+                {
+                    role: 'system',
+                    content: ragOutput.systemMessage,
                 },
-                onDecodeToken: (token) => {
-                    addTokenToLastLLMMessage(token)
-                }
-            })
-            return newMessagesWithoutContext
-        })
+                ...newMessagesWithContextInPrompt.map((message) => message.message),
+            ],
+            onEnd: () => {
+                setIsDecoding(false);
+            },
+            onDecodeToken: (token) => {
+                addTokenToLastLLMMessage(token, ragOutput.contexts);
+            },
+        });
     }
 
-    function addTokenToLastLLMMessage(token: string) {
+    function addTokenToLastLLMMessage(token: string, contexts: string[]) {
         setMessages((prevMessages) => {
             const lastMessage = prevMessages[prevMessages.length - 1];
 
-            if (lastMessage === undefined || lastMessage.role !== 'bot') {
-                const newMessage = { role: 'bot', content: token };
+            if (lastMessage === undefined || lastMessage.message.role !== 'bot') {
+                const newMessage = { ...lastMessage, contexts, message: { role: 'bot', content: token } };
                 return [...prevMessages, newMessage];
             }
 
-            const updatedMessage = { ...lastMessage, content: lastMessage.content + token };
+            const updatedMessage = { ...lastMessage, contexts, message: { ...lastMessage.message, content: lastMessage.message.content + token } };
             return [...prevMessages.slice(0, -1), updatedMessage];
         });
     }
@@ -97,7 +106,6 @@ async function loadLLM(modelPath: string = FileSystem.cacheDirectory + "qwen2.5-
     return await initLlama({
         model: modelPath,
         use_mlock: true,
-        n_ctx: 2048,
         n_gpu_layers: 99,
     })
 }
