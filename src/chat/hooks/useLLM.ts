@@ -104,9 +104,7 @@ export default function useLLM({ onMessagesUpdate }: useLLMProps) {
 
 async function loadLLM(modelPath: string = FileSystem.cacheDirectory + "qwen2.5-1.5b-instruct-fp16.gguf"): Promise<LlamaContext> {
     return await initLlama({
-        model: modelPath,
-        use_mlock: true,
-        n_gpu_layers: 99,
+        model: modelPath
     })
 }
 
@@ -132,7 +130,7 @@ async function completePrompt({ context, messages, onEnd, onDecodeToken }: Compl
     await context.completion(
         {
             messages,
-            n_predict: 100,
+            n_predict: 400,
             stop: stopWords,
         },
         (data) => {
