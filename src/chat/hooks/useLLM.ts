@@ -71,7 +71,7 @@ export default function useLLM({ onMessagesUpdate }: useLLMProps) {
             messages: [
                 {
                     role: 'system',
-                    content: ragOutput.systemMessage,
+                    content: ragOutput.systemMessage + ". Feel free to answer the question in markdown",
                 },
                 ...newMessagesWithContextInPrompt.map((message) => message.message),
             ],
@@ -102,7 +102,7 @@ export default function useLLM({ onMessagesUpdate }: useLLMProps) {
 
 }
 
-async function loadLLM(modelPath: string = FileSystem.cacheDirectory + "qwen2.5-1.5b-instruct-q2_k.gguf"): Promise<LlamaContext> {
+async function loadLLM(modelPath: string = FileSystem.cacheDirectory + "qwen2.5-1.5b-instruct-fp16.gguf"): Promise<LlamaContext> {
     return await initLlama({
         model: modelPath,
         use_mlock: true,

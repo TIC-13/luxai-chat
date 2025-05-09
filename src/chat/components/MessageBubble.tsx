@@ -5,12 +5,14 @@ import { useThemeColor } from "@/hooks/useThemeColor";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { Pressable, StyleSheet } from "react-native";
+import Markdown from "react-native-markdown-display";
 import { LLMMessage } from "../types/LLMMessage";
 
 export default function MessageBubble({ message }: { message: LLMMessage }) {
 
     const userBubbleColor = useThemeColor('userBubble')
     const systemBubbleColor = useThemeColor('systemBubble')
+    const textColor = useThemeColor('text');
 
     const { setRagContexts } = useRagContext()
 
@@ -33,7 +35,14 @@ export default function MessageBubble({ message }: { message: LLMMessage }) {
                 message.contexts !== undefined && message.contexts.length > 0 &&
                 <ContextBubble onPress = {navigateToContextModal}/>
             }
-            <ThemedText>{message.message.content}</ThemedText>
+            <Markdown
+                style = {{
+                    body: {
+                        color: textColor,
+                        fontSize: 15
+                    }
+                }}
+            >{message.message.content}</Markdown>
         </ThemedView>
     )
 }
