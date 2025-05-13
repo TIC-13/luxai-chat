@@ -15,27 +15,29 @@ export default function useSequentialDownload({ downloads, onAllFinished }: useS
     const [currentFileProgress, setCurrentFileProgress] = useState(0);
     const [currentFileName, setCurrentFileName] = useState<string | null>(null);
     const [isChecking, setIsChecking] = useState(true);
-    
+
+    const [error, setError] = useState<Error | undefined>(undefined)
+
     // Check if all files already exist
     useEffect(() => {
         const checkAllFiles = async () => {
             setIsChecking(true);
-            
+
             let allExist = true;
             let firstNonExistingIndex = 0;
-            
+
             for (let i = 0; i < downloads.length; i++) {
                 const { saveFolderPath, filename } = downloads[i];
                 const completePath = saveFolderPath + filename;
                 const exists = await checkIfFileExists(completePath);
-                
+
                 if (!exists) {
                     allExist = false;
                     firstNonExistingIndex = i;
                     break;
                 }
             }
-            
+
             if (allExist) {
                 setOverallProgress(1);
                 setIsAllDownloaded(true);
@@ -44,25 +46,28 @@ export default function useSequentialDownload({ downloads, onAllFinished }: useS
                 setCurrentIndex(firstNonExistingIndex);
                 setCurrentFileName(downloads[firstNonExistingIndex].filename);
             }
-            
+
             setIsChecking(false);
         };
-        
+
         checkAllFiles();
     }, []);
-    
-    // Handle downloads sequentially
+
     useEffect(() => {
+        handleDownloadsSequnetially()
+    }, [currentIndex, isChecking, isAllDownloaded]);
+
+    async function handleDownloadsSequnetially() {
         if (isChecking || isAllDownloaded) return;
-        
+
         const currentDownload = downloads[currentIndex];
         if (!currentDownload) return;
-        
+
         const { downloadLink, saveFolderPath, filename, onFinished } = currentDownload;
         const completePath = saveFolderPath + filename;
-        
+
         setCurrentFileName(filename);
-        
+
         const downloadFile = async () => {
             // First check if file already exists
             const exists = await checkIfFileExists(completePath);
@@ -71,15 +76,15 @@ export default function useSequentialDownload({ downloads, onAllFinished }: useS
                 handleDownloadComplete();
                 return;
             }
-            
+
             const tempDirPath = FileSystem.cacheDirectory + "temp/";
             const tempFilePath = tempDirPath + filename;
-            
+
             try {
                 await deleteDir(tempDirPath);
                 await ensureDirExists(tempDirPath);
                 await ensureDirExists(saveFolderPath);
-                
+
                 const downloadableResumable = FileSystem.createDownloadResumable(
                     downloadLink,
                     tempFilePath,
@@ -90,27 +95,28 @@ export default function useSequentialDownload({ downloads, onAllFinished }: useS
                         updateOverallProgress(progress);
                     }
                 );
-                
+
                 const downloadResult = await downloadableResumable.downloadAsync();
-                
+
                 if (downloadResult) {
                     await FileSystem.moveAsync({
                         from: tempFilePath,
                         to: completePath
                     });
-                    
+
                     if (onFinished) onFinished();
                     handleDownloadComplete();
                 }
             } catch (error) {
                 console.error("Download failed:", error);
+                setError(error as Error)
                 // Handle error as needed
             }
         };
-        
+
         downloadFile();
-    }, [currentIndex, isChecking, isAllDownloaded]);
-    
+    }
+
     // Helper function to move to the next download or finish
     const handleDownloadComplete = () => {
         if (currentIndex + 1 < downloads.length) {
@@ -122,21 +128,28 @@ export default function useSequentialDownload({ downloads, onAllFinished }: useS
             if (onAllFinished) onAllFinished();
         }
     };
-    
+
     // Helper function to calculate overall progress
     const updateOverallProgress = (currentProgress: number) => {
         const completedPortions = currentIndex;
         const currentPortion = currentProgress;
         const totalItems = downloads.length;
-        
+
         setOverallProgress((completedPortions + currentPortion) / totalItems);
     };
-    
-    return { 
-        overallProgress, 
-        isAllDownloaded, 
-        currentFileName, 
+
+    const retry = () => {
+        setError(undefined)
+        handleDownloadsSequnetially()
+    }
+
+    return {
+        overallProgress,
+        isAllDownloaded,
+        currentFileName,
         currentFileProgress,
-        isLoading: isChecking
+        isLoading: isChecking,
+        error, 
+        retry
     };
 }

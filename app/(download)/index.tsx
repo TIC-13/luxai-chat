@@ -1,3 +1,4 @@
+import Button, { ButtonIcon, ButtonText } from "@/components/Button";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { DOWNLOADS } from "@/constants/Files";
@@ -8,7 +9,7 @@ function DownloadModelsScreen() {
 
     const goToChat = () => router.replace('/chat')
 
-    const { currentFileProgress, currentFileName } = useSequentialDownload({
+    const { currentFileProgress, currentFileName, error, retry } = useSequentialDownload({
         downloads: DOWNLOADS,
         onAllFinished: goToChat
     })
@@ -22,6 +23,15 @@ function DownloadModelsScreen() {
             }}
         >
             <ThemedText>{`Downloading ${currentFileName}: ${(currentFileProgress * 100).toFixed(1)}%`}</ThemedText>
+            {
+                error !== undefined &&
+                <Button
+                    onPress={retry}
+                >
+                    <ButtonIcon name = 'restart'/>
+                    <ButtonText>Retry download</ButtonText>
+                </Button>
+            }
         </ThemedView>
     )
 }

@@ -27,6 +27,10 @@ export const Colors = {
 
     iconContainer: '#F5F5F5',
     iconColor: '#11181C',
+
+    buttonBackground: '#0A7EA4',
+    buttonLabel: '#FFFFFF',
+
   },
   dark: {
     text: '#ECEDEE',
@@ -35,7 +39,7 @@ export const Colors = {
     icon: '#9BA1A6',
     tabIconDefault: '#9BA1A6',
     tabIconSelected: tintColorDark,
-    
+
     headerBackground: '#2C2F33',
     headerTint: '#ECEDEE',
     headerTintInactive: '#B0BEC5',
@@ -48,5 +52,8 @@ export const Colors = {
 
     iconContainer: '#2C2F33',
     iconColor: '#ECEDEE',
+
+    buttonBackground: '#1F2933', 
+    buttonLabel: '#ECEDEE',
   },
 };
