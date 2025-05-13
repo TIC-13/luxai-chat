@@ -25,7 +25,8 @@ export default function RootLayout() {
       <RagContextProvider>
       <GestureHandlerRootView>
         <Stack>
-          <Stack.Screen name="(chat)/index" />
+          <Stack.Screen name="(download)/index" options={{headerShown: false}}/>
+          <Stack.Screen name="chat/index" />
           <Stack.Screen name="context/index" options={{
             presentation: "modal",
             animation: "slide_from_bottom",

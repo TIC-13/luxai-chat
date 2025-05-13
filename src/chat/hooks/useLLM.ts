@@ -1,6 +1,6 @@
+import { CHUNKS_PATH, EMBEDDINGS_PATH, MODEL_COMPLET_PATH, RAG_MODEL_PATH, TOKENIZER_PATH } from '@/constants/Files';
 import { LLMMessage } from '@/src/chat/types/LLMMessage';
 import Rag from '@/src/chat/utils/rag';
-import * as FileSystem from 'expo-file-system';
 import { initLlama, LlamaContext, RNLlamaOAICompatibleMessage } from "llama.rn";
 import { useEffect, useState } from "react";
 
@@ -102,7 +102,7 @@ export default function useLLM({ onMessagesUpdate }: useLLMProps) {
 
 }
 
-async function loadLLM(modelPath: string = FileSystem.cacheDirectory + "qwen2.5-1.5b-instruct-fp16.gguf"): Promise<LlamaContext> {
+async function loadLLM(modelPath: string = MODEL_COMPLET_PATH): Promise<LlamaContext> {
     return await initLlama({
         model: modelPath
     })
@@ -111,10 +111,10 @@ async function loadLLM(modelPath: string = FileSystem.cacheDirectory + "qwen2.5-
 async function loadRAG() {
     console.log("Loading RAG...")
     await Rag.loadFromInternalStorage(
-        "model.onnx",
-        "tokenizer.json",
-        "embeddings.csv",
-        "chunks.csv"
+        RAG_MODEL_PATH,
+        TOKENIZER_PATH,
+        EMBEDDINGS_PATH,
+        CHUNKS_PATH
     )
 }
 
