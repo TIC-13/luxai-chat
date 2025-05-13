@@ -6,9 +6,10 @@ import { useDownloadProps } from './useDownload';
 type useSequentialDownloadProps = {
     downloads: useDownloadProps[];
     onAllFinished?: () => void;
+    onError?: () => void
 };
 
-export default function useSequentialDownload({ downloads, onAllFinished }: useSequentialDownloadProps) {
+export default function useSequentialDownload({ downloads, onAllFinished, onError }: useSequentialDownloadProps) {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [overallProgress, setOverallProgress] = useState(0);
     const [isAllDownloaded, setIsAllDownloaded] = useState(false);
@@ -110,6 +111,7 @@ export default function useSequentialDownload({ downloads, onAllFinished }: useS
             } catch (error) {
                 console.error("Download failed:", error);
                 setError(error as Error)
+                if(onError) onError()
                 // Handle error as needed
             }
         };

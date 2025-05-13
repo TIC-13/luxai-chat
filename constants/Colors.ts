@@ -31,6 +31,10 @@ export const Colors = {
     buttonBackground: '#0A7EA4',
     buttonLabel: '#FFFFFF',
 
+    toastBackground: '#F5F5F5', 
+    toastTitle: '#11181C', 
+    toastSubtitle: '#687076'
+
   },
   dark: {
     text: '#ECEDEE',
@@ -53,7 +57,12 @@ export const Colors = {
     iconContainer: '#2C2F33',
     iconColor: '#ECEDEE',
 
-    buttonBackground: '#1F2933', 
+    buttonBackground: '#1F2933',
     buttonLabel: '#ECEDEE',
+
+    toastBackground: '#2C2F33', 
+    toastTitle: '#ECEDEE', 
+    toastSubtitle: '#9BA1A6',
+
   },
 };

@@ -4,14 +4,24 @@ import { ThemedView } from "@/components/ThemedView";
 import { DOWNLOADS } from "@/constants/Files";
 import useSequentialDownload from "@/src/download/hooks/useSequentialDownload";
 import { router } from "expo-router";
+import Toast from "react-native-toast-message";
 
 function DownloadModelsScreen() {
 
     const goToChat = () => router.replace('/chat')
 
+    const onError = () => {
+        Toast.show({
+            type: 'error',
+            text1: 'Download failed',
+            text2: "Press 'Retry Download' to try again",
+        })
+    }
+
     const { currentFileProgress, currentFileName, error, retry } = useSequentialDownload({
         downloads: DOWNLOADS,
-        onAllFinished: goToChat
+        onAllFinished: goToChat,
+        onError
     })
 
     return (
