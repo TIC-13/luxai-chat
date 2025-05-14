@@ -1,3 +1,4 @@
+import { useDownloadProps } from '@/src/download/hooks/useDownload';
 import * as FileSystem from 'expo-file-system';
 
 const MODEL_LINK = "https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct-GGUF/resolve/main/qwen2.5-1.5b-instruct-fp16.gguf"
@@ -22,7 +23,7 @@ export const TOKENIZER_PATH = "/models/" + TOKENIZER_NAME
 export const EMBEDDINGS_PATH = "/models/" + EMBEDDINGS_NAME
 export const CHUNKS_PATH = "/models/" + CHUNKS_NAME
 
-export const DOWNLOADS = [
+export const DOWNLOADS: useDownloadProps[] = [
     {
         downloadLink: MODEL_LINK,
         saveFolderPath: FILES_FOLDER,

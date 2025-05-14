@@ -15,8 +15,8 @@ export const Colors = {
     tabIconDefault: '#687076',
     tabIconSelected: tintColorLight,
 
-    headerBackground: '#F5F5F5',
-    headerTint: '#11181C',
+    headerBackground: '#0A7EA4',
+    headerTint: '#fff',
     headerTintInactive: '#B0BEC5',
 
     userBubble: '#E1F5FE',
@@ -33,7 +33,20 @@ export const Colors = {
 
     toastBackground: '#F5F5F5', 
     toastTitle: '#11181C', 
-    toastSubtitle: '#687076'
+    toastSubtitle: '#687076',
+
+    progressBarFilled: '#0A7EA4', 
+    progressBarUnfilled: '#E0E0E0',
+
+    infoCardBackground: '#E3F2FD',
+    infoCardIconTint: '#1976D2',
+    infoCardTitleTint: '#0D47A1',
+    infoCardTextTint: '#1565C0',
+
+    warningCardBackground: '#FFF8E1',
+    warningCardIconTint: '#FFA000',
+    warningCardTitleTint: '#FF6F00',
+    warningCardTextTint: '#FF8F00',
 
   },
   dark: {
@@ -63,6 +76,19 @@ export const Colors = {
     toastBackground: '#2C2F33', 
     toastTitle: '#ECEDEE', 
     toastSubtitle: '#9BA1A6',
+
+    progressBarFilled: '#0A7EA4',
+    progressBarUnfilled: '#4B5563',
+
+    infoCardBackground: '#1A237E',
+    infoCardIconTint: '#64B5F6',
+    infoCardTitleTint: '#BBDEFB',
+    infoCardTextTint: '#90CAF9',
+
+    warningCardBackground: '#3E2723',
+    warningCardIconTint: '#FFD54F',
+    warningCardTitleTint: '#FFECB3',
+    warningCardTextTint: '#FFE082',
 
   },
 };

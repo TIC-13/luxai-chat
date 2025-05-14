@@ -23,20 +23,38 @@ export default function RootLayout() {
     return null;
   }
 
+  function MyStack() {
+
+    const headerBackground = useThemeColor('headerBackground');
+    const headerTint = useThemeColor('headerTint');
+
+    return (
+      <Stack screenOptions={{
+        headerTransparent: true,
+        headerTitle: "LuxAI Chat",
+        headerTitleAlign: 'center',
+        headerStyle: {
+          backgroundColor: headerBackground,
+        },
+        headerTintColor: headerTint,
+      }}>
+        <Stack.Screen name="(download)/index" options={{ headerTitle: "Download models" }} />
+        <Stack.Screen name="chat/index" />
+        <Stack.Screen name="context/index" options={{
+          presentation: "modal",
+          animation: "slide_from_bottom",
+          headerTitle: "Information founded"
+        }} />
+        <Stack.Screen name="+not-found" />
+      </Stack>
+    )
+  }
+
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <RagContextProvider>
         <GestureHandlerRootView>
-          <Stack>
-            <Stack.Screen name="(download)/index" options={{ headerShown: false }} />
-            <Stack.Screen name="chat/index" />
-            <Stack.Screen name="context/index" options={{
-              presentation: "modal",
-              animation: "slide_from_bottom",
-              headerTitle: "Information founded"
-            }} />
-            <Stack.Screen name="+not-found" />
-          </Stack>
+          <MyStack />
         </GestureHandlerRootView>
       </RagContextProvider>
       <StatusBar style="auto" />
@@ -58,8 +76,8 @@ function useToastConfig() {
     success: (props: BaseToastProps) => (
       <BaseToast
         {...props}
-        style={{ 
-          backgroundColor: toastBackground 
+        style={{
+          backgroundColor: toastBackground
         }}
         text1Style={{
           color: toastTitle,
@@ -74,9 +92,9 @@ function useToastConfig() {
     error: (props: BaseToastProps) => (
       <ErrorToast
         {...props}
-        style={{ 
-          backgroundColor: toastBackground, 
-          borderLeftColor: 'red' 
+        style={{
+          backgroundColor: toastBackground,
+          borderLeftColor: 'red'
         }}
         text1Style={{
           color: toastTitle,

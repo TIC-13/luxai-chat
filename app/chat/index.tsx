@@ -14,7 +14,6 @@ import Animated from "react-native-reanimated";
 
 export default function ChatLayout() {
 
-    const headerBackground = useThemeColor('headerBackground');
     const headerTint = useThemeColor('headerTint');
     const headerTintInactive = useThemeColor('headerTintInactive');
 
@@ -63,13 +62,6 @@ export default function ChatLayout() {
             </KeyboardAvoidingView>
             <Stack.Screen
                 options={{
-                    headerTransparent: true,
-                    headerTitle: "LuxAI Chat",
-                    headerTitleAlign: 'center',
-                    headerStyle: {
-                        backgroundColor: headerBackground,
-                    },
-                    headerTintColor: headerTint,
                     headerRight: () => 
                         <RectButton onPress={reload}>
                             <MaterialCommunityIcons 

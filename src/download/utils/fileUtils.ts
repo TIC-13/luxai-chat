@@ -1,3 +1,4 @@
+import { DOWNLOADS } from '@/constants/Files';
 import * as FileSystem from 'expo-file-system';
 
 export async function ensureDirExists(dir: string) {
@@ -20,6 +21,14 @@ export async function ensureDirExists(dir: string) {
 export async function checkIfFileExists(filePath: string) {
     const fileInfo = await FileSystem.getInfoAsync(filePath)
     return fileInfo.exists
+}
+
+export async function checkIfAllFilesDownloaded() {
+    for(let {saveFolderPath, filename} of DOWNLOADS){
+        const exists = await checkIfFileExists(saveFolderPath + filename)
+        if(!exists) return false
+    }
+    return true
 }
 
 export async function deleteDir(dir: string) {
