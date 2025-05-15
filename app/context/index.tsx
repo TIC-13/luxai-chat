@@ -21,10 +21,10 @@ export default function ContextModal() {
     }, [])
 
     async function fullParse() {
-        const firstParse = ragContexts.map( context => parseContext(context) )
+        const firstParse = ragContexts.map(context => parseContext(context))
         const finalParse: string[] = []
 
-        for(let context of firstParse) {
+        for (let context of firstParse) {
             const parsed = await parseMarkdownImages(context)
             finalParse.push(parsed)
         }
@@ -36,7 +36,7 @@ export default function ContextModal() {
         <ThemedView style={{ flex: 1 }}>
             <Animated.ScrollView style={styles.mainContainer}>
                 {
-                    parsedContexts !== undefined && 
+                    parsedContexts !== undefined &&
                     parsedContexts.map((context, index) => {
                         return (
                             <View key={index} style={{ flex: 1 }}>
@@ -49,11 +49,14 @@ export default function ContextModal() {
                                         marginVertical: 20
                                     }}
                                 >
-                                    {`Context ${index+1}`}
+                                    {`Context ${index + 1}`}
                                 </ThemedText>
-                                <Markdown style = {{
+                                <Markdown style={{
                                     body: { color: textColor },
-                                    image: {  maxWidth: 20, maxHeight: 20, margin: 10 },
+                                    image: {
+                                        maxWidth: 150,
+                                        maxHeight: 150
+                                    },
                                 }}>
                                     {context}
                                 </Markdown>
@@ -61,7 +64,7 @@ export default function ContextModal() {
                         )
                     })
                 }
-                <View style={{ height: 70 }} />
+                <View style={{ height: 150 }} />
             </Animated.ScrollView>
         </ThemedView>
     )

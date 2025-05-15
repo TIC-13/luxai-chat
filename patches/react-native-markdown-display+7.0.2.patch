@@ -1,0 +1,107 @@
+diff --git a/node_modules/react-native-markdown-display/src/lib/renderRules.js b/node_modules/react-native-markdown-display/src/lib/renderRules.js
+index 6f2ed8d..6da2c55 100644
+--- a/node_modules/react-native-markdown-display/src/lib/renderRules.js
++++ b/node_modules/react-native-markdown-display/src/lib/renderRules.js
+@@ -1,18 +1,19 @@
+-import React from 'react';
+ import {
+-  Text,
+-  TouchableWithoutFeedback,
+-  View,
++  Image,
+   Platform,
+   StyleSheet,
++  Text,
++  TouchableWithoutFeedback,
++  View
+ } from 'react-native';
+-import FitImage from 'react-native-fit-image';
+ 
+-import openUrl from './util/openUrl';
+ import hasParents from './util/hasParents';
++import openUrl from './util/openUrl';
+ 
+ import textStyleProps from './data/textStyleProps';
+ 
++import { useEffect, useState } from 'react';
++
+ const renderRules = {
+   // when unknown elements are introduced, so it wont break
+   unknown: (node, children, parent, styles) => null,
+@@ -282,21 +283,17 @@ const renderRules = {
+       return null;
+     }
+ 
+-    const imageProps = {
+-      indicator: true,
+-      key: node.key,
+-      style: styles._VIEW_SAFE_image,
+-      source: {
+-        uri: show === true ? src : `${defaultImageHandler}${src}`,
+-      },
+-    };
++    const uri = show === true ? src : `${defaultImageHandler}${src}`;
+ 
+-    if (alt) {
+-      imageProps.accessible = true;
+-      imageProps.accessibilityLabel = alt;
+-    }
+-
+-    return <FitImage {...imageProps} />;
++    // Use the OriginalSizeImage component to maintain original dimensions
++    return (
++      <OriginalSizeImage 
++        key={node.key}
++        uri={uri}
++        alt={alt}
++        style={styles._VIEW_SAFE_image}
++      />
++    );
+   },
+ 
+   // Text Output
+@@ -344,4 +341,44 @@ const renderRules = {
+   ),
+ };
+ 
++const OriginalSizeImage = ({ uri, alt, style }) => {
++  const [layoutDimensions, setLayoutDimensions] = useState({ width: undefined, height: undefined });
++  
++  // This approach lets the base64 image render at its natural size by:
++  // 1. Using resizeMode='contain' to preserve aspect ratio
++  // 2. Letting the image calculate its own size (not specifying dimensions)
++  // 3. Using onLayout to capture the natural dimensions once rendered
++  
++  useEffect(() => {
++    Image.getSize(uri, (width, height) => {
++      setLayoutDimensions({ width, height }) 
++    })
++  }, [])
++
++  const imageProps = {
++    indicator: true,
++    style: {
++      ...style,
++      width: layoutDimensions.width,  // Let the image determine its own width
++      height: layoutDimensions.height, // Let the image determine its own height
++      resizeMode: 'contain', // Preserve aspect ratio
++      alignSelf: 'flex-start', // Don't stretch to container width
++    },
++    source: { uri },
++    onLayout: (event) => {
++      const { width, height } = event.nativeEvent.layout;
++      setLayoutDimensions({ width, height });
++    }
++  };
++
++  if (alt) {
++    imageProps.accessible = true;
++    imageProps.accessibilityLabel = alt;
++  }
++
++  return <View style = {{width: layoutDimensions.width, height: layoutDimensions.height, marginHorizontal: 10}}>
++            <Image {...imageProps} />
++         </View>;
++};
++
+ export default renderRules;
