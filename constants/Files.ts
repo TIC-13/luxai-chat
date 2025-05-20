@@ -17,6 +17,10 @@ const EMBEDDINGS_NAME = "embeddings.csv"
 const CHUNKS_LINK = "https://drive.google.com/uc?export=download&id=1dQUNqjv-FLaDsZj5NSo_NKb8LIvSVLMq"
 const CHUNKS_NAME = "chunks.csv"
 
+export const IMAGES_FILE_LINK = "https://drive.google.com/uc?export=download&id=1KNIYng9qwfdyj_a3LRPDIdRT42sdXPGE"
+export const IMAGES_FILE_NAME = "manual-images.zip"
+export const IMAGES_FULL_PATH  = FILES_FOLDER + IMAGES_FILE_NAME
+
 export const MODEL_COMPLET_PATH = FILES_FOLDER + MODEL_NAME
 export const RAG_MODEL_PATH = "/models/" + RAG_MODEL_NAME
 export const TOKENIZER_PATH = "/models/" + TOKENIZER_NAME
@@ -49,4 +53,9 @@ export const DOWNLOADS: useDownloadProps[] = [
         saveFolderPath: FILES_FOLDER,
         filename: CHUNKS_NAME,
     },
+    {
+        downloadLink: IMAGES_FILE_LINK,
+        saveFolderPath: FILES_FOLDER,
+        filename: IMAGES_FILE_NAME
+    }
 ]

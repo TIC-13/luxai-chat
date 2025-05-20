@@ -6001,6 +6001,11 @@ react-native-webview@13.13.5:
     escape-string-regexp "^4.0.0"
     invariant "2.2.4"
 
+react-native-zip-archive@^7.0.1:
+  version "7.0.1"
+  resolved "https://registry.yarnpkg.com/react-native-zip-archive/-/react-native-zip-archive-7.0.1.tgz#d682a208de72da6d3609d7a3a60d65465dfc6f83"
+  integrity sha512-Zd3TDVCUQkAC3jjvmFjjJHOoig+ryYcOMrh7iLiwQCqe8TgrGJm3rhDNDgpfHKdLRMlIletvz2sh9OOttb0dZQ==
+
 react-native@0.79.2:
   version "0.79.2"
   resolved "https://registry.yarnpkg.com/react-native/-/react-native-0.79.2.tgz#f1a53099701c1736d09e441eb79f97cfc90dd202"

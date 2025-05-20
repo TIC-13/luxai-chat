@@ -2,8 +2,7 @@ import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { useRagContext } from "@/contexts/RagContext";
 import { useThemeColor } from "@/hooks/useThemeColor";
-import { parseMarkdownImages } from "@/src/download/utils/markdownImagesUtils";
-import { useEffect, useState } from "react";
+import useParseContext from "@/src/context/hooks/useParseContext";
 import { StyleSheet, View } from "react-native";
 import Markdown from "react-native-markdown-display";
 import Animated from "react-native-reanimated";
@@ -13,24 +12,7 @@ export default function ContextModal() {
     const { ragContexts } = useRagContext()
     const textColor = useThemeColor('text');
 
-
-    const [parsedContexts, setParsedContexts] = useState<string[] | undefined>(undefined)
-
-    useEffect(() => {
-        fullParse().then(res => setParsedContexts(res))
-    }, [])
-
-    async function fullParse() {
-        const firstParse = ragContexts.map(context => parseContext(context))
-        const finalParse: string[] = []
-
-        for (let context of firstParse) {
-            const parsed = await parseMarkdownImages(context)
-            finalParse.push(parsed)
-        }
-
-        return finalParse
-    }
+    const parsedContexts = useParseContext(ragContexts)
 
     return (
         <ThemedView style={{ flex: 1 }}>
@@ -78,19 +60,3 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
     }
 })
-
-function parseContext(input: string): string {
-    const formatted = input
-        .slice(3)
-    let lines = formatted.split('\\n');
-    let linesConcatenated = lines[0]
-
-    lines.slice(1).map(line => {
-        linesConcatenated += `\n${line.trim()}`
-    })
-
-    console.log("ORIGINAL", input)
-    console.log('PARSED', linesConcatenated)
-
-    return linesConcatenated;
-}

@@ -1,75 +1,65 @@
-import { Asset } from 'expo-asset';
+import { IMAGES_FULL_PATH } from '@/constants/Files';
 import * as FileSystem from 'expo-file-system';
+import { getUnzippedDirPath } from './fileUtils';
 
-type ImageExtension = 'png' | 'jpg' | 'jpeg' | 'gif' | 'webp';
-
-async function getImageBase64FromAsset(assetModule: number): Promise<string> {
+export const uriToBase64 = async (uri: string) => {
     try {
-        const asset = Asset.fromModule(assetModule);
-
-        await asset.downloadAsync();
-
-        if (!asset.localUri) {
-            throw new Error('Asset local URI is undefined');
+        if (!uri || typeof uri !== 'string') {
+            throw new Error('Invalid URI provided');
         }
 
-        const base64 = await FileSystem.readAsStringAsync(asset.localUri, {
+        const base64 = await FileSystem.readAsStringAsync(uri, {
             encoding: FileSystem.EncodingType.Base64,
         });
 
-        const mimeType = getMimeType(asset.localUri);
-
+        let mimeType = 'image/jpeg';
+        if (uri.endsWith('.png')) {
+            mimeType = 'image/png';
+        } else if (uri.endsWith('.gif')) {
+            mimeType = 'image/gif';
+        } else if (uri.endsWith('.webp')) {
+            mimeType = 'image/webp';
+        }
         return `data:${mimeType};base64,${base64}`;
     } catch (error) {
-        console.error('Error converting asset to base64:', error);
+        console.error('Error converting URI to base64:', error);
         throw error;
     }
-}
-
-function getMimeType(uri: string): string {
-    const extension = uri.split('.').pop()?.toLowerCase() as ImageExtension | undefined;
-
-    switch (extension) {
-        case 'png':
-            return 'image/png';
-        case 'jpg':
-        case 'jpeg':
-            return 'image/jpeg';
-        case 'gif':
-            return 'image/gif';
-        case 'webp':
-            return 'image/webp';
-        default:
-            return 'image/png';
-    }
-}
-
-export const parseMarkdownImages = async (markdownText: string) => {
-
-    let newMarkdownText = markdownText
-
-    for (let { name, file } of IMAGES) {
-        const base64 = await getImageBase64FromAsset(file)
-        newMarkdownText = newMarkdownText.replace(name, `![${name}](${base64})`)
-    }
-
-    console.log("new markdown", newMarkdownText)
-
-    return newMarkdownText
-
 };
 
-const IMAGES = [
-    {
-        name: "image:fast_flashlight_default.gif",
-        file: require("@/assets/images/manual/fast_flashlight_default.gif")
-    },
-    {
-        name: "image:qs_12_flashlight",
-        file: require("@/assets/images/manual/qs_12_flashlight.png")
-    },
-    {
-        name: "image:qs_12_batterysaver",
-        file: require("@/assets/images/manual/qs_12_batterysaver.png")
+export type ImagesDict = { [key: string]: string }
+
+export const generateImagesDict = async () => {
+    const imagesFolderUri = getUnzippedDirPath(IMAGES_FULL_PATH)
+    const imagesArray = await FileSystem.readDirectoryAsync(imagesFolderUri)
+
+    const imagesObject: ImagesDict = {}
+
+    for (let imageFileName of imagesArray) {
+        imagesObject[`image:${removeFileExtension(imageFileName)}`] = imagesFolderUri + "/" + imageFileName
     }
-]
+
+    return imagesObject
+}
+
+export const parseMarkdownImages = async (markdownText: string, imagesObject: ImagesDict) => {
+    const imagesTags = [... new Set(markdownText.match(/image:[^\s,.)]+/g) || [])]
+    let newMarkdown = markdownText
+
+    console.log("Image tags", imagesTags)
+
+    for (let tag of imagesTags) {
+        const tagAsset = imagesObject[tag]
+        console.log("Replacing", tag, "with", tagAsset)
+        newMarkdown = newMarkdown.replace(tag,
+            tagAsset !== undefined ?
+                `![${tag}](${await uriToBase64(tagAsset)})` :
+                tag
+        )
+    }
+
+    return newMarkdown.replace(".gif", "")
+};
+
+const removeFileExtension = (filename: string) =>
+    filename.split(".").slice(0, -1).join(".")

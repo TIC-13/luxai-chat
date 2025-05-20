@@ -14,7 +14,8 @@ export async function ensureDirExists(dir: string) {
             console.error(`Failed to create directory ${dir}.`);
             throw new Error(`Failed to create directory ${dir}.`);
         }
-
+    }else{
+        console.log(`Directory ${dir} already existed`)
     }
 }
 
@@ -37,4 +38,8 @@ export async function deleteDir(dir: string) {
         console.log(`Directory ${dir} exists, deleting…`);
         await FileSystem.deleteAsync(dir, { idempotent: true });
     }
+}
+
+export function getUnzippedDirPath(zippedPath: string) {
+    return zippedPath.split(".").slice(0, -1).join(".")
 }
