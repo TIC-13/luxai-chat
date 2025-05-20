@@ -1,3 +1,4 @@
+import LoadingScreen from "@/components/LoadingScreen";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { useRagContext } from "@/contexts/RagContext";
@@ -13,6 +14,9 @@ export default function ContextModal() {
     const textColor = useThemeColor('text');
 
     const parsedContexts = useParseContext(ragContexts)
+
+    if(parsedContexts === undefined)
+        return <LoadingScreen/>
 
     return (
         <ThemedView style={{ flex: 1 }}>

@@ -48,6 +48,8 @@ export const Colors = {
     warningCardTitleTint: '#FF6F00',
     warningCardTextTint: '#FF8F00',
 
+    activityIndicator: '#0A7EA4'
+
   },
   dark: {
     text: '#ECEDEE',
@@ -89,6 +91,8 @@ export const Colors = {
     warningCardIconTint: '#FFD54F',
     warningCardTitleTint: '#FFECB3',
     warningCardTextTint: '#FFE082',
+
+    activityIndicator: '#64B5F6',
 
   },
 };
