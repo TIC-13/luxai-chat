@@ -1,9 +1,9 @@
 import { useDownloadProps } from '@/src/download/hooks/useDownload';
 import * as FileSystem from 'expo-file-system';
 
-const MODEL_LINK = "https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct-GGUF/resolve/main/qwen2.5-1.5b-instruct-fp16.gguf"
+const MODEL_LINK = "https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct-GGUF/resolve/main/qwen2.5-1.5b-instruct-q8_0.gguf"
 const FILES_FOLDER = FileSystem.cacheDirectory + "models/"
-const MODEL_NAME = "qwen2.5-1.5b-instruct-fp16.gguf"
+const MODEL_NAME = "qwen2.5-1.5b-instruct-q8_0.gguf"
 
 const RAG_MODEL_LINK = "https://huggingface.co/BAAI/bge-small-en-v1.5/resolve/main/onnx/model.onnx"
 const RAG_MODEL_NAME = "model.onnx"

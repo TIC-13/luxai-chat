@@ -59,14 +59,14 @@ export const Colors = {
     tabIconDefault: '#9BA1A6',
     tabIconSelected: tintColorDark,
 
-    headerBackground: '#2C2F33',
+    headerBackground: '#23272A',
     headerTint: '#ECEDEE',
     headerTintInactive: '#B0BEC5',
 
     userBubble: '#0A7EA4',
     systemBubble: '#2C2F33',
 
-    messageInputField: '#2C2F33',
+    messageInputField: '#23272A',
     placeholderTextColor: '#B0BEC5',
 
     iconContainer: '#2C2F33',

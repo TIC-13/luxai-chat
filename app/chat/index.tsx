@@ -1,9 +1,13 @@
+import LoadingScreen from "@/components/LoadingScreen";
 import { ThemedSafeAreaView } from "@/components/ThemedSafeAreaView";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import MessageBubble from "@/src/chat/components/MessageBubble";
 import MessageInputField from "@/src/chat/components/MessageInputField";
 import useLLM from "@/src/chat/hooks/useLLM";
+import { LLMMessage } from "@/src/chat/types/LLMMessage";
 import rollToBottom from '@/src/chat/utils/rollToTheBottom';
+import { useGetDictionayOfImagesFromManual } from "@/src/context/hooks/useParseMarkdown";
+import { ImagesDict, parseMarkdownImages } from "@/src/download/utils/markdownImagesUtils";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useHeaderHeight } from "@react-navigation/elements";
 import { Stack } from "expo-router";
@@ -22,6 +26,11 @@ export default function ChatLayout() {
         onMessagesUpdate: () => rollToBottom(scrollViewRef)
     })
     const headerHeight = useHeaderHeight()
+
+    const imagesDict = useGetDictionayOfImagesFromManual()
+
+    if(imagesDict === undefined)
+        return <LoadingScreen/>
 
     return (
         <ThemedSafeAreaView style={{ flex: 1 }}>
@@ -44,7 +53,7 @@ export default function ChatLayout() {
                                     message.message.role === 'user' ? styles.userBubbleContainer : styles.systemBubbleContainer
                                 ]}
                             >
-                                <MessageBubble key={index} message={message} />
+                                <MessageBubble key={index} message={parseMessageWithMarkdownImages(message, imagesDict)} />
                             </View>
                         ))
                     }
@@ -77,6 +86,10 @@ export default function ChatLayout() {
             />
         </ThemedSafeAreaView>
     )
+}
+
+function parseMessageWithMarkdownImages(message: LLMMessage, imagesDict: ImagesDict) {
+    return {...message, message: {...message.message, content: parseMarkdownImages(message.message.content, imagesDict)}}
 }
 
 const styles = StyleSheet.create({

@@ -1,51 +1,37 @@
 import LoadingScreen from "@/components/LoadingScreen";
+import MyMarkdown from "@/components/Markdown";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { useRagContext } from "@/contexts/RagContext";
-import { useThemeColor } from "@/hooks/useThemeColor";
-import useParseContext from "@/src/context/hooks/useParseContext";
+import useParseMarkdown from "@/src/context/hooks/useParseMarkdown";
 import { StyleSheet, View } from "react-native";
-import Markdown from "react-native-markdown-display";
 import Animated from "react-native-reanimated";
 
 export default function ContextModal() {
 
     const { ragContexts } = useRagContext()
-    const textColor = useThemeColor('text');
 
-    const parsedContexts = useParseContext(ragContexts)
+    const parsedMarkdown = useParseMarkdown(ragContexts)
 
-    if(parsedContexts === undefined)
-        return <LoadingScreen/>
+    if (parsedMarkdown === undefined)
+        return <LoadingScreen />
 
     return (
         <ThemedView style={{ flex: 1 }}>
             <Animated.ScrollView style={styles.mainContainer}>
                 {
-                    parsedContexts !== undefined &&
-                    parsedContexts.map((context, index) => {
+                    parsedMarkdown !== undefined &&
+                    parsedMarkdown.map((markdown, index) => {
                         return (
                             <View key={index} style={{ flex: 1 }}>
                                 <ThemedText
-                                    style={{
-                                        fontSize: 20,
-                                        fontWeight: 'bold',
-                                        marginBottom: 10,
-                                        color: textColor,
-                                        marginVertical: 20
-                                    }}
+                                    style={styles.contextIndexText}
                                 >
                                     {`Context ${index + 1}`}
                                 </ThemedText>
-                                <Markdown style={{
-                                    body: { color: textColor },
-                                    image: {
-                                        maxWidth: 150,
-                                        maxHeight: 150
-                                    },
-                                }}>
-                                    {context}
-                                </Markdown>
+                                <MyMarkdown>
+                                    {markdown}
+                                </MyMarkdown>
                             </View>
                         )
                     })
@@ -62,5 +48,11 @@ const styles = StyleSheet.create({
         flex: 1,
         paddingTop: 100,
         paddingHorizontal: 20,
+    },
+    contextIndexText: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        marginBottom: 10,
+        marginVertical: 20
     }
 })

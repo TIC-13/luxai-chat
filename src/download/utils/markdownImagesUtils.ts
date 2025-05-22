@@ -36,24 +36,24 @@ export const generateImagesDict = async () => {
     const imagesObject: ImagesDict = {}
 
     for (let imageFileName of imagesArray) {
-        imagesObject[`image:${removeFileExtension(imageFileName)}`] = imagesFolderUri + "/" + imageFileName
+        imagesObject[`image:${removeFileExtension(imageFileName)}`] = await uriToBase64(imagesFolderUri + "/" + imageFileName)
     }
 
     return imagesObject
 }
 
-export const parseMarkdownImages = async (markdownText: string, imagesObject: ImagesDict) => {
-    const imagesTags = [... new Set(markdownText.match(/image:[^\s,.)]+/g) || [])]
+export const parseMarkdownImages = (markdownText: string, imagesObject: ImagesDict) => {
+    const imagesTags = [...new Set(markdownText.match(/image:[^\s,.)]+/gi) || [])].map(tag => tag.toLowerCase());
     let newMarkdown = markdownText
 
     console.log("Image tags", imagesTags)
 
     for (let tag of imagesTags) {
-        const tagAsset = imagesObject[tag]
-        console.log("Replacing", tag, "with", tagAsset)
-        newMarkdown = newMarkdown.replace(tag,
-            tagAsset !== undefined ?
-                `![${tag}](${await uriToBase64(tagAsset)})` :
+        const base64Image = imagesObject[tag]
+        //console.log("Replacing", tag, "with", base64Image.slice(0,20))
+        newMarkdown = newMarkdown.replaceAll(tag,
+            base64Image !== undefined ?
+                `![${tag}](${base64Image})` :
                 tag
         )
     }
