@@ -43,7 +43,7 @@ export default function RootLayout() {
         <Stack.Screen name="context/index" options={{
           presentation: "modal",
           animation: "slide_from_bottom",
-          headerTitle: "Information founded"
+          headerTitle: "Information found"
         }} />
         <Stack.Screen name="+not-found" />
       </Stack>

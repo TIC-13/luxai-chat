@@ -1,6 +1,7 @@
-import { checkIfFileExists, deleteDir, ensureDirExists } from '@/src/download/utils/fileUtils';
+import { checkIfFileExists, deleteDir, ensureDirExists, getUnzippedDirPath } from '@/src/download/utils/fileUtils';
 import * as FileSystem from 'expo-file-system';
 import { useEffect, useState } from 'react';
+import { unzip } from "react-native-zip-archive";
 import { useDownloadProps } from './useDownload';
 
 type useSequentialDownloadProps = {
@@ -105,13 +106,17 @@ export default function useSequentialDownload({ downloads, onAllFinished, onErro
                         to: completePath
                     });
 
+                    if (filename.endsWith(".zip")) {
+                        await unzipFile(completePath)
+                    }
+
                     if (onFinished) onFinished();
                     handleDownloadComplete();
                 }
             } catch (error) {
                 console.error("Download failed:", error);
                 setError(error as Error)
-                if(onError) onError()
+                if (onError) onError()
                 // Handle error as needed
             }
         };
@@ -130,6 +135,18 @@ export default function useSequentialDownload({ downloads, onAllFinished, onErro
             if (onAllFinished) onAllFinished();
         }
     };
+
+    const unzipFile = async (completePath: string) => {
+        try {
+            console.log("ZIP path:", completePath)
+            const pathUnzipped = getUnzippedDirPath(completePath)
+            await ensureDirExists(pathUnzipped)
+            const resultPath = await unzip(completePath, pathUnzipped)
+            console.log('Files in ZIP:', resultPath);
+        } catch (error) {
+            console.error('Error listing ZIP contents:', error);
+        }
+    }
 
     // Helper function to calculate overall progress
     const updateOverallProgress = (currentProgress: number) => {
@@ -151,7 +168,7 @@ export default function useSequentialDownload({ downloads, onAllFinished, onErro
         currentFileName,
         currentFileProgress,
         isLoading: isChecking,
-        error, 
+        error,
         retry
     };
 }

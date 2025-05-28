@@ -1,4 +1,4 @@
-import { CHUNKS_PATH, EMBEDDINGS_PATH, MODEL_COMPLET_PATH, RAG_MODEL_PATH, TOKENIZER_PATH } from '@/constants/Files';
+import { CHUNKS_PATH, EMBEDDINGS_PATH, MODEL_COMPLET_PATH, RAG_MODEL_PATH, RERANKER_FILE_PATH, RERANKER_TOKENIZER_PATH, TOKENIZER_PATH } from '@/constants/Files';
 import { LLMMessage } from '@/src/chat/types/LLMMessage';
 import Rag from '@/src/chat/utils/rag';
 import { initLlama, LlamaContext, RNLlamaOAICompatibleMessage } from "llama.rn";
@@ -52,19 +52,18 @@ export default function useLLM({ onMessagesUpdate }: useLLMProps) {
 
         setIsDecoding(true);
 
-        const ragOutput = await Rag.getPrompt(prompt, 2);
-      
         const newMessagesWithoutContextInPrompt = [
             ...messages,
             { message: { role: 'user', content: prompt } },
         ];
+        setMessages(newMessagesWithoutContextInPrompt);
+
+        const ragOutput = await Rag.getPrompt(prompt, 2);
 
         const newMessagesWithContextInPrompt = [
             ...messages,
             { message: { role: 'user', content: ragOutput.userMessage } },
         ];
-
-        setMessages(newMessagesWithoutContextInPrompt);
 
         completePrompt({
             context: llama,
@@ -114,7 +113,9 @@ async function loadRAG() {
         RAG_MODEL_PATH,
         TOKENIZER_PATH,
         EMBEDDINGS_PATH,
-        CHUNKS_PATH
+        CHUNKS_PATH,
+        RERANKER_TOKENIZER_PATH,
+        RERANKER_FILE_PATH
     )
 }
 
