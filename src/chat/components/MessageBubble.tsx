@@ -1,3 +1,4 @@
+import MyMarkdown from "@/components/Markdown";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { useRagContext } from "@/contexts/RagContext";
@@ -5,7 +6,6 @@ import { useThemeColor } from "@/hooks/useThemeColor";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { Pressable, StyleSheet } from "react-native";
-import Markdown from "react-native-markdown-display";
 import { LLMMessage } from "../types/LLMMessage";
 
 export default function MessageBubble({ message }: { message: LLMMessage }) {
@@ -35,14 +35,9 @@ export default function MessageBubble({ message }: { message: LLMMessage }) {
                 message.contexts !== undefined && message.contexts.length > 0 &&
                 <ContextBubble onPress = {navigateToContextModal}/>
             }
-            <Markdown
-                style = {{
-                    body: {
-                        color: textColor,
-                        fontSize: 15
-                    }
-                }}
-            >{message.message.content}</Markdown>
+            <MyMarkdown>
+                {message.message.content}
+            </MyMarkdown>
         </ThemedView>
     )
 }
