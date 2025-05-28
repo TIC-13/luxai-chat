@@ -17,6 +17,12 @@ const EMBEDDINGS_NAME = "embeddings.csv"
 const CHUNKS_LINK = "https://drive.google.com/uc?export=download&id=1dQUNqjv-FLaDsZj5NSo_NKb8LIvSVLMq"
 const CHUNKS_NAME = "chunks.csv"
 
+const RERANKER_FILE_LINK = "https://huggingface.co/mixedbread-ai/mxbai-rerank-xsmall-v1/resolve/main/onnx/model.onnx"
+const RERANKER_FILE_NAME = "mxbai-reranker-xsmall.onnx"
+
+const RERANKER_TOKENIZER_LINK = "https://drive.google.com/uc?export=download&id=1T_Vy_vXAY6p72BT2E_bzt4ABVHfWmoFj"
+const RERANKER_TOKENIZER_FILE_NAME = "reranker_tokenizer.json"
+
 export const IMAGES_FILE_LINK = "https://drive.google.com/uc?export=download&id=1KNIYng9qwfdyj_a3LRPDIdRT42sdXPGE"
 export const IMAGES_FILE_NAME = "manual-images.zip"
 export const IMAGES_FULL_PATH  = FILES_FOLDER + IMAGES_FILE_NAME
@@ -26,6 +32,8 @@ export const RAG_MODEL_PATH = "/models/" + RAG_MODEL_NAME
 export const TOKENIZER_PATH = "/models/" + TOKENIZER_NAME
 export const EMBEDDINGS_PATH = "/models/" + EMBEDDINGS_NAME
 export const CHUNKS_PATH = "/models/" + CHUNKS_NAME
+export const RERANKER_TOKENIZER_PATH = "/models/" + RERANKER_TOKENIZER_FILE_NAME
+export const RERANKER_FILE_PATH = "/models/" + RERANKER_FILE_NAME 
 
 export const DOWNLOADS: useDownloadProps[] = [
     {
@@ -57,5 +65,15 @@ export const DOWNLOADS: useDownloadProps[] = [
         downloadLink: IMAGES_FILE_LINK,
         saveFolderPath: FILES_FOLDER,
         filename: IMAGES_FILE_NAME
+    },
+    {
+        downloadLink: RERANKER_TOKENIZER_LINK,
+        saveFolderPath: FILES_FOLDER,
+        filename: RERANKER_TOKENIZER_FILE_NAME
+    },
+    {
+        downloadLink: RERANKER_FILE_LINK,
+        saveFolderPath: FILES_FOLDER,
+        filename: RERANKER_FILE_NAME
     }
 ]
