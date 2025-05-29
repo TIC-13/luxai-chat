@@ -1,12 +1,12 @@
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
 
 import { RagContextProvider } from '@/contexts/RagContext';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useThemeColor } from '@/hooks/useThemeColor';
+import { Stack } from 'expo-router';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import Toast, { BaseToast, BaseToastProps, ErrorToast } from 'react-native-toast-message';
 
@@ -17,52 +17,60 @@ export default function RootLayout() {
     Roboto: require('../assets/fonts/Roboto-Regular.ttf'),
   });
 
+  const headerBackground = useThemeColor('headerBackground');
+  const headerTint = useThemeColor('headerTint');
+
   const toastConfig = useToastConfig()
+
+  const defaultScreenOptions = {
+    headerStyle: {
+      backgroundColor: headerBackground,
+    },
+    headerTintColor: headerTint,
+    headerTitleAlign: 'center',
+  };
 
   if (!loaded) {
     // Async font loading only occurs in development.
     return null;
   }
 
-  function MyStack() {
-
-    const headerBackground = useThemeColor('headerBackground');
-    const headerTint = useThemeColor('headerTint');
-
-    return (
-      <Stack screenOptions={{
-        headerTransparent: true,
-        headerTitle: "LuxAI Chat",
-        headerTitleAlign: 'center',
-        headerStyle: {
-          backgroundColor: headerBackground,
-        },
-        headerTintColor: headerTint,
-      }}>
-        <Stack.Screen name="(download)/index" options={{ headerTitle: "Download models" }} />
-        <Stack.Screen name="chat/index" />
-        <Stack.Screen name="context/index" options={{
-          presentation: "modal",
-          animation: "slide_from_bottom",
-          headerTitle: "Information found"
-        }} />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-    )
-  }
-
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <RagContextProvider>
-        <GestureHandlerRootView>
-          <MyStack />
+        <GestureHandlerRootView style={{ flex: 1 }}>
+          <Stack
+            screenOptions={{
+              headerStyle: {
+                backgroundColor: headerBackground,
+              },
+              headerTintColor: headerTint,
+              headerTitleAlign: 'center',
+            }}
+          >
+            <Stack.Screen
+              name="(drawer)"
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="(download)/index"
+              options={{
+                headerTitle: "Download Models",
+              }}
+            />
+            <Stack.Screen
+              name="context/index"
+              options={{
+                headerTitle: "Information found",
+                presentation: "modal",
+                animation: "slide_from_bottom",
+              }}
+            />
+          </Stack>
         </GestureHandlerRootView>
       </RagContextProvider>
       <StatusBar style="auto" />
-      <Toast
-        config={toastConfig}
-
-      />
+      <Toast config={toastConfig} />
     </ThemeProvider>
   );
 }

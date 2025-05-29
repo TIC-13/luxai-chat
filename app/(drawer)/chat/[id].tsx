@@ -10,11 +10,14 @@ import { useGetDictionayOfImagesFromManual } from "@/src/context/hooks/useParseM
 import { ImagesDict, parseMarkdownImages } from "@/src/download/utils/markdownImagesUtils";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useHeaderHeight } from "@react-navigation/elements";
-import { Stack } from "expo-router";
+import { DrawerActions } from "@react-navigation/native";
+import { useLocalSearchParams, useNavigation } from "expo-router";
+import Drawer from "expo-router/drawer";
 import { useRef } from "react";
 import { KeyboardAvoidingView, Platform, StyleSheet, View } from "react-native";
 import { RectButton } from "react-native-gesture-handler";
 import Animated from "react-native-reanimated";
+import { startNewChat } from "../../(download)";
 
 export default function ChatLayout() {
 
@@ -22,15 +25,20 @@ export default function ChatLayout() {
     const headerTintInactive = useThemeColor('headerTintInactive');
 
     const scrollViewRef = useRef<Animated.ScrollView>(null);
-    const { messages, sendMessage, isUnableToSend, reload } = useLLM({
+
+    const { id } = useLocalSearchParams<{ id: string }>()
+    const { messages, sendMessage, isUnableToSend } = useLLM({
+        conversationId: id,
         onMessagesUpdate: () => rollToBottom(scrollViewRef)
     })
-    const headerHeight = useHeaderHeight()
 
     const imagesDict = useGetDictionayOfImagesFromManual()
 
-    if(imagesDict === undefined)
-        return <LoadingScreen/>
+    const headerHeight = useHeaderHeight()
+    const navigation = useNavigation()
+
+    if (imagesDict === undefined)
+        return <LoadingScreen />
 
     return (
         <ThemedSafeAreaView style={{ flex: 1 }}>
@@ -69,17 +77,35 @@ export default function ChatLayout() {
                     />
                 </View>
             </KeyboardAvoidingView>
-            <Stack.Screen
+            <Drawer.Screen
                 options={{
-                    headerRight: () => 
-                        <RectButton onPress={reload}>
-                            <MaterialCommunityIcons 
-                                name="reload" 
-                                color={isUnableToSend? 
-                                    headerTintInactive: headerTint
-                                } 
-                                size={20} 
-                                onPress={isUnableToSend? () => null: reload} 
+
+                    headerTitle: "LuxAI Chat",
+
+                    headerLeft: () => (
+                        <RectButton
+                            onPress={() => navigation.dispatch(DrawerActions.openDrawer())}
+                            style={styles.headerIconContainer}
+                        >
+                            <MaterialCommunityIcons
+                                name="menu"
+                                color={headerTint}
+                                size={20}
+                            />
+                        </RectButton>
+                    ),
+
+                    headerRight: () =>
+                        <RectButton
+                            onPress={isUnableToSend ? () => null : startNewChat}
+                            style={styles.headerIconContainer}
+                        >
+                            <MaterialCommunityIcons
+                                name="plus"
+                                color={isUnableToSend ?
+                                    headerTintInactive : headerTint
+                                }
+                                size={20}
                             />
                         </RectButton>
                 }}
@@ -89,7 +115,7 @@ export default function ChatLayout() {
 }
 
 function parseMessageWithMarkdownImages(message: LLMMessage, imagesDict: ImagesDict) {
-    return {...message, message: {...message.message, content: parseMarkdownImages(message.message.content, imagesDict)}}
+    return { ...message, message: { ...message.message, content: parseMarkdownImages(message.message.content, imagesDict) } }
 }
 
 const styles = StyleSheet.create({
@@ -119,5 +145,11 @@ const styles = StyleSheet.create({
         paddingVertical: 0,
         justifyContent: "center",
         alignItems: "center",
+    },
+    headerIconContainer: { 
+        width: 60, 
+        height: "100%", 
+        justifyContent: 'center', 
+        alignItems: 'center' 
     }
 })

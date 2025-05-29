@@ -3,44 +3,84 @@ import { LLMMessage } from '@/src/chat/types/LLMMessage';
 import Rag from '@/src/chat/utils/rag';
 import { initLlama, LlamaContext, RNLlamaOAICompatibleMessage } from "llama.rn";
 import { useEffect, useState } from "react";
+import { conversations } from '../utils/storeConversations';
 
 type useLLMProps = {
-    onMessagesUpdate?: (messages: LLMMessage[]) => void
+    onMessagesUpdate?: (messages: LLMMessage[]) => void,
+    conversationId: string
 }
 
-export default function useLLM({ onMessagesUpdate }: useLLMProps) {
+export default function useLLM({ onMessagesUpdate, conversationId }: useLLMProps) {
 
     const [llama, setLlama] = useState<LlamaContext | null>(null)
     const [ragLoaded, setRagLoaded] = useState(false)
-    const [messages, setMessages] = useState<LLMMessage[]>([])
+    const [messages, setMessages] = useState<LLMMessage[]>(getPreviousMessagesIfExist)
 
     const [isDecoding, setIsDecoding] = useState(false)
 
     useEffect(() => {
-        reload()
+        load()
         loadRAG().then(() => setRagLoaded(true))
     }, [])
 
     useEffect(() => {
-        console.log("Messages: ", messages.map(it => it.message))
+        resetMessages()
+    }, [conversationId])
+
+    useEffect(() => {
+        storeConversation(messages)
         onMessagesUpdate?.(messages)
     }, [messages]);
 
     const isLoading = llama === null
     const isUnableToSend = isLoading || isDecoding || !ragLoaded
 
-    function reload() {
+    function storeConversation(messages: LLMMessage[]) {
+
+        if (messages.length === 0)
+            return false
+
+        const parsedMessages = messages[messages.length - 1].message.role === "user" ?
+            messages.slice(0, -1) : messages
+
+        if (parsedMessages.length === 0)
+            return false
+
+        conversations.set(conversationId, {
+            title: parsedMessages[0].message.content,
+            id: conversationId,
+            messages: parsedMessages
+        })
+
+        console.log("SAVED CONV")
+
+        return true
+    }
+
+    function getStoredConversationIfExists() {
+        return conversations.get(conversationId)
+    }
+
+    function getPreviousMessagesIfExist() {
+        return (getStoredConversationIfExists()?.messages) ?? []
+    }
+
+    function load() {
         if (isDecoding)
             throw new Error("Model is decoding")
 
-        setMessages([])
+        resetMessages()
         setLlama(null)
         loadLLM().then((context) => {
             setLlama(context)
         })
     }
 
-    async function sendMessage(prompt: string) {
+    function resetMessages() {
+        setMessages(getPreviousMessagesIfExist())
+    }
+
+    async function sendMessage(messages: LLMMessage[], prompt: string) {
         if (llama === null)
             throw new Error("Model is not initialized yet");
 
@@ -97,7 +137,7 @@ export default function useLLM({ onMessagesUpdate }: useLLMProps) {
         });
     }
 
-    return { isLoading, isDecoding, messages, isUnableToSend, sendMessage, reload }
+    return { isLoading, isDecoding, messages, isUnableToSend, sendMessage: (prompt: string) => sendMessage(messages, prompt) }
 
 }
 

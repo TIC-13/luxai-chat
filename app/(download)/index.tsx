@@ -9,6 +9,7 @@ import { useThemeColor } from "@/hooks/useThemeColor";
 import useCheckIfAllFilesDownloaded from "@/src/download/hooks/useCheckIfAllFilesDownloaded";
 import useSequentialDownload from "@/src/download/hooks/useSequentialDownload";
 import { useHeaderHeight } from "@react-navigation/elements";
+import * as Crypto from "expo-crypto";
 import { Image } from 'expo-image';
 import { router } from "expo-router";
 import React, { useState } from "react";
@@ -18,13 +19,14 @@ import Toast from "react-native-toast-message";
 
 const { width } = Dimensions.get("window")
 
-const goToChat = () => router.replace('/chat')
+export const startNewChat = () => 
+    router.replace({pathname: "/chat/[id]", params: {id: Crypto.randomUUID() }})
 
 export default function DonwnloadScreen() {
     const [downloadStarted, setDownloadStarted] = useState(false);
 
     const allFilesDownloaded = useCheckIfAllFilesDownloaded({
-        onTrue: goToChat
+        onTrue: startNewChat
     })
 
     const headerHeight = useHeaderHeight()
@@ -82,7 +84,7 @@ function DownloadModels() {
 
     const { currentFileProgress, currentFileName, error, retry } = useSequentialDownload({
         downloads: DOWNLOADS,
-        onAllFinished: goToChat,
+        onAllFinished: startNewChat,
         onError
     })
 

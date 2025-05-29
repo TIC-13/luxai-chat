@@ -36,7 +36,7 @@ export default function ContextModal() {
                         )
                     })
                 }
-                <View style={{ height: 150 }} />
+                <View style={{ height: 70 }} />
             </Animated.ScrollView>
         </ThemedView>
     )
@@ -46,7 +46,6 @@ export default function ContextModal() {
 const styles = StyleSheet.create({
     mainContainer: {
         flex: 1,
-        paddingTop: 100,
         paddingHorizontal: 20,
     },
     contextIndexText: {

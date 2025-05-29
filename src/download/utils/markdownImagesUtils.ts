@@ -43,7 +43,7 @@ export const generateImagesDict = async () => {
 }
 
 export const parseMarkdownImages = (markdownText: string, imagesObject: ImagesDict) => {
-    const imagesTags = [...new Set(markdownText.match(/image:[^\s,.)]+/gi) || [])].map(tag => tag.toLowerCase());
+    const imagesTags = [...new Set(markdownText.match(/image:[^\s,.*'"`)]+/gi) || [])].map(tag => tag.toLowerCase());
     let newMarkdown = markdownText
 
     console.log("Image tags", imagesTags)

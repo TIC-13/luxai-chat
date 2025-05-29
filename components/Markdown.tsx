@@ -21,7 +21,7 @@ export default function MyMarkdown(props: MarkdownProps & {children: string}) {
                 paragraph: {flexDirection: 'row', flexWrap: 'wrap'},
                 textgroup: {flexDirection: 'row', flexWrap: 'wrap'},
             }}
-            debugPrintTree={true}
+            //debugPrintTree={true}
             {...props}
         />
     )
