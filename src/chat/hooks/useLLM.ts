@@ -46,8 +46,10 @@ export default function useLLM({ onMessagesUpdate, conversationId }: useLLMProps
         if (parsedMessages.length === 0)
             return false
 
+        const title = parsedMessages[0].message.content
+
         conversations.set(conversationId, {
-            title: parsedMessages[0].message.content,
+            title: title.length === 0? "Chat": title,
             id: conversationId,
             messages: parsedMessages
         })

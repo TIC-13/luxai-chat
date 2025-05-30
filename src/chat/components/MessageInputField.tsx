@@ -19,7 +19,12 @@ export default function MessageInputField({ isLoading, onSend, onPress }: Messag
 
     const [text, onChangeText] = useState<string>("")
 
+    const canSubmit = !isLoading && text !== ""
+
     const submitText = () => {
+
+        if (!canSubmit) return
+
         onSend(text)
         onChangeText("")
     }
@@ -29,26 +34,24 @@ export default function MessageInputField({ isLoading, onSend, onPress }: Messag
             <TextInput
                 placeholder="Write your text here..."
                 placeholderTextColor={placeholderTextColor}
-                value = {text}
+                value={text}
                 onChangeText={onChangeText}
                 onSubmitEditing={submitText}
                 style={{ flex: 1, color: textColor }}
                 onPress={onPress}
                 submitBehavior="submit"
             />
-            <View style={[styles.sendIconContainer, { backgroundColor: iconContainer }]}>
+            <Pressable
+                style={[styles.sendIconContainer, { backgroundColor: iconContainer }]}
+                onPress={submitText}
+                android_ripple={{ color: backgroundColor }}
+            >
                 {
                     isLoading ?
                         <ActivityIndicator color={iconColor} size={20} /> :
-                        <Pressable
-                            android_ripple={{ color: iconContainer }}
-                            onPress={submitText}
-                        >
-                            <MaterialCommunityIcons name="send" color={iconColor} size={20} />
-                        </Pressable>
-
+                        <MaterialCommunityIcons name="send" color={iconColor} size={20} />
                 }
-            </View>
+            </Pressable>
         </View>
     )
 }
@@ -65,8 +68,8 @@ const styles = StyleSheet.create({
         borderRadius: 20,
     },
     sendIconContainer: {
+        //height: "100%",
         padding: 10,
-        backgroundColor: 'blue',
         borderRadius: 15,
         justifyContent: "center",
         alignItems: "center"
