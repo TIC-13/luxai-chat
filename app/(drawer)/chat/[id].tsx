@@ -17,6 +17,7 @@ import { useRef } from "react";
 import { KeyboardAvoidingView, Platform, StyleSheet, View } from "react-native";
 import { RectButton } from "react-native-gesture-handler";
 import Animated from "react-native-reanimated";
+import Toast from "react-native-toast-message";
 import { startNewChat } from "../../(download)";
 
 export default function ChatLayout() {
@@ -84,12 +85,14 @@ export default function ChatLayout() {
 
                     headerLeft: () => (
                         <RectButton
-                            onPress={() => navigation.dispatch(DrawerActions.openDrawer())}
+                            onPress={isUnableToSend ? showCantDoActionToast : () => navigation.dispatch(DrawerActions.openDrawer())}
                             style={styles.headerIconContainer}
                         >
                             <MaterialCommunityIcons
                                 name="menu"
-                                color={headerTint}
+                                color={isUnableToSend ?
+                                    headerTintInactive : headerTint
+                                }
                                 size={20}
                             />
                         </RectButton>
@@ -97,7 +100,7 @@ export default function ChatLayout() {
 
                     headerRight: () =>
                         <RectButton
-                            onPress={isUnableToSend ? () => null : startNewChat}
+                            onPress={isUnableToSend ? showCantDoActionToast : startNewChat}
                             style={styles.headerIconContainer}
                         >
                             <MaterialCommunityIcons
@@ -112,6 +115,14 @@ export default function ChatLayout() {
             />
         </ThemedSafeAreaView>
     )
+}
+
+function showCantDoActionToast() {
+    Toast.show({
+        type: 'info',
+        text1: "You can't do that right now",
+        text2: "Wait for the app to finish answering the question",
+    })
 }
 
 function parseMessageWithMarkdownImages(message: LLMMessage, imagesDict: ImagesDict) {
@@ -146,10 +157,10 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         alignItems: "center",
     },
-    headerIconContainer: { 
-        width: 60, 
-        height: "100%", 
-        justifyContent: 'center', 
-        alignItems: 'center' 
+    headerIconContainer: {
+        width: 60,
+        height: "100%",
+        justifyContent: 'center',
+        alignItems: 'center'
     }
 })
