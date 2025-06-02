@@ -20,7 +20,7 @@ export default function MessageBubble({ message }: { message: LLMMessage }) {
         if(message.contexts === undefined || message.contexts.length === 0) 
             return
         setRagContexts(message.contexts)
-        router.push("/context")
+        router.navigate("/context")
     }
 
     return (

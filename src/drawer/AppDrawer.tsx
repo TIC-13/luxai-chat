@@ -30,7 +30,7 @@ export default function AppDrawer() {
                 <DrawerItem
                     label="New Chat"
                     icon="plus"
-                    onPress={() => router.push({
+                    onPress={() => router.navigate({
                         pathname: "/chat/[id]",
                         params: { id: Crypto.randomUUID() }
                     })}
@@ -40,7 +40,7 @@ export default function AppDrawer() {
                     <DrawerItem
                         key={idx}
                         label={conversation.title}
-                        onPress={() => router.push({
+                        onPress={() => router.navigate({
                             pathname: "/chat/[id]",
                             params: { id: conversation.id }
                         })}
