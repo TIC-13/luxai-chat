@@ -1,4 +1,4 @@
-import { ImagesDict, generateImagesDict, parseMarkdownImages } from "@/src/download/utils/markdownImagesUtils"
+import { getStoredImagesDict, ImagesDict, parseMarkdownImages, storeImagesDict } from "@/src/download/utils/markdownImagesUtils"
 import { useEffect, useState } from "react"
 
 export default function useParseMarkdown(ragContexts: string[]) {
@@ -32,7 +32,17 @@ export function useGetDictionayOfImagesFromManual() {
 
     async function pipeline() {
         if (imagesDict === undefined) {
-            setImagesDict(await generateImagesDict())
+
+            const storedImagesDict = getStoredImagesDict()
+
+            if (storedImagesDict.isEmpty()) {
+                const imagesDict = await storeImagesDict()
+                setImagesDict(imagesDict)
+                return 
+            }
+
+            setImagesDict(storedImagesDict.getAll())
+
         }
     }
 

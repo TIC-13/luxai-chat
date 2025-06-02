@@ -1,6 +1,10 @@
 import { IMAGES_FULL_PATH } from '@/constants/Files';
+import { PersistentDictionary } from '@/src/utils/mmkv/dictionary';
 import * as FileSystem from 'expo-file-system';
+import { Image } from 'react-native';
 import { getUnzippedDirPath } from './fileUtils';
+
+export const getStoredImagesDict = () => new PersistentDictionary<ImagesValue>("images")
 
 export const uriToBase64 = async (uri: string) => {
     try {
@@ -27,19 +31,60 @@ export const uriToBase64 = async (uri: string) => {
     }
 };
 
-export type ImagesDict = { [key: string]: string }
+interface ImageDimensions {
+    width: number;
+    height: number;
+}
 
-export const generateImagesDict = async () => {
+export type ImagesValue = {base64: string, dimensions: ImageDimensions}
+
+export type ImagesDict = { [key: string]: ImagesValue }
+
+export const generateImagesDict = async (): Promise<ImagesDict> => {
     const imagesFolderUri = getUnzippedDirPath(IMAGES_FULL_PATH)
     const imagesArray = await FileSystem.readDirectoryAsync(imagesFolderUri)
 
     const imagesObject: ImagesDict = {}
 
-    for (let imageFileName of imagesArray) {
-        imagesObject[`image:${removeFileExtension(imageFileName)}`] = await uriToBase64(imagesFolderUri + "/" + imageFileName)
-    }
+    await Promise.all(
+        imagesArray.map(async (imageFileName: string) => {
+            const imageUri = imagesFolderUri + "/" + imageFileName
+
+            const [dimensions, base64]: [ImageDimensions, string] = await Promise.all([
+                new Promise<ImageDimensions>((resolve) => {
+                    Image.getSize(
+                        imageUri,
+                        (width: number, height: number) => resolve({ width, height }),
+                        (error: any) => {
+                            console.warn(`Failed to get dimensions for ${imageFileName}:`, error);
+                            resolve({ width: 0, height: 0 });
+                        }
+                    );
+                }),
+                uriToBase64(imageUri)
+            ]);
+
+            imagesObject[`image:${removeFileExtension(imageFileName)}`] = {
+                base64,
+                dimensions
+            }
+        })
+    );
 
     return imagesObject
+}
+
+export async function storeImagesDict() {
+
+    const storedImagesDict = getStoredImagesDict()
+
+    if (storedImagesDict.isEmpty()) {
+        const imagesDict = await generateImagesDict()
+        storedImagesDict.store(imagesDict)
+        return imagesDict
+    }
+
+    return undefined
 }
 
 export const parseMarkdownImages = (markdownText: string, imagesObject: ImagesDict) => {
@@ -49,8 +94,7 @@ export const parseMarkdownImages = (markdownText: string, imagesObject: ImagesDi
     console.log("Image tags", imagesTags)
 
     for (let tag of imagesTags) {
-        const base64Image = imagesObject[tag]
-        //console.log("Replacing", tag, "with", base64Image.slice(0,20))
+        const base64Image = imagesObject[tag]?.base64
         newMarkdown = newMarkdown.replaceAll(tag,
             base64Image !== undefined ?
                 `![${tag}](${base64Image})` :

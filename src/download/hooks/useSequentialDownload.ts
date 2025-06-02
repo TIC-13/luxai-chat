@@ -2,6 +2,7 @@ import { checkIfFileExists, deleteDir, ensureDirExists, getUnzippedDirPath } fro
 import * as FileSystem from 'expo-file-system';
 import { useEffect, useState } from 'react';
 import { unzip } from "react-native-zip-archive";
+import { storeImagesDict } from '../utils/markdownImagesUtils';
 import { useDownloadProps } from './useDownload';
 
 type useSequentialDownloadProps = {
@@ -143,6 +144,9 @@ export default function useSequentialDownload({ downloads, onAllFinished, onErro
             await ensureDirExists(pathUnzipped)
             const resultPath = await unzip(completePath, pathUnzipped)
             console.log('Files in ZIP:', resultPath);
+
+            await storeImagesDict()
+
         } catch (error) {
             console.error('Error listing ZIP contents:', error);
         }
@@ -172,3 +176,4 @@ export default function useSequentialDownload({ downloads, onAllFinished, onErro
         retry
     };
 }
+
