@@ -36,7 +36,7 @@ interface ImageDimensions {
     height: number;
 }
 
-export type ImagesValue = {base64: string, dimensions: ImageDimensions}
+export type ImagesValue = { base64: string, dimensions: ImageDimensions }
 
 export type ImagesDict = { [key: string]: ImagesValue }
 
@@ -75,34 +75,41 @@ export const generateImagesDict = async (): Promise<ImagesDict> => {
 }
 
 export async function storeImagesDict() {
-
     const storedImagesDict = getStoredImagesDict()
-
-    if (storedImagesDict.isEmpty()) {
-        const imagesDict = await generateImagesDict()
-        storedImagesDict.store(imagesDict)
-        return imagesDict
-    }
-
-    return undefined
+    const imagesDict = await generateImagesDict()
+    storedImagesDict.store(imagesDict)
+    return imagesDict
 }
 
 export const parseMarkdownImages = (markdownText: string, imagesObject: ImagesDict) => {
+    
+    console.log("mardown text", markdownText)
+    
     const imagesTags = [...new Set(markdownText.match(/image:[^\s,.*'"`)]+/gi) || [])].map(tag => tag.toLowerCase());
     let newMarkdown = markdownText
 
     console.log("Image tags", imagesTags)
 
     for (let tag of imagesTags) {
-        const base64Image = imagesObject[tag]?.base64
+
+        const img = imagesObject[tag]
+
+        if (img === undefined)
+            continue
+
+        const base64Image = img.base64
+        const { width, height } = imagesObject[tag].dimensions
+
         newMarkdown = newMarkdown.replaceAll(tag,
             base64Image !== undefined ?
-                `![${tag}](${base64Image})` :
+                `![${width},${height}](${base64Image})` :
                 tag
         )
     }
 
-    return newMarkdown.replace(".gif", "")
+    return newMarkdown
+        .replace(".gif", "")
+        .replace("`", "")
 };
 
 const removeFileExtension = (filename: string) =>

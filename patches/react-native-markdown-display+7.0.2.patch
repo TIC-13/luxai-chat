@@ -1,13 +1,14 @@
 diff --git a/node_modules/react-native-markdown-display/src/lib/renderRules.js b/node_modules/react-native-markdown-display/src/lib/renderRules.js
-index 6f2ed8d..6da2c55 100644
+index 6f2ed8d..02e1ab4 100644
 --- a/node_modules/react-native-markdown-display/src/lib/renderRules.js
 +++ b/node_modules/react-native-markdown-display/src/lib/renderRules.js
-@@ -1,18 +1,19 @@
+@@ -1,18 +1,20 @@
 -import React from 'react';
  import {
 -  Text,
 -  TouchableWithoutFeedback,
 -  View,
++  ActivityIndicator,
 +  Image,
    Platform,
    StyleSheet,
@@ -23,12 +24,12 @@ index 6f2ed8d..6da2c55 100644
  
  import textStyleProps from './data/textStyleProps';
  
-+import { useEffect, useState } from 'react';
++import { useState } from 'react';
 +
  const renderRules = {
    // when unknown elements are introduced, so it wont break
    unknown: (node, children, parent, styles) => null,
-@@ -282,21 +283,17 @@ const renderRules = {
+@@ -282,21 +284,17 @@ const renderRules = {
        return null;
      }
  
@@ -60,32 +61,22 @@ index 6f2ed8d..6da2c55 100644
    },
  
    // Text Output
-@@ -344,4 +341,44 @@ const renderRules = {
+@@ -344,4 +342,48 @@ const renderRules = {
    ),
  };
  
 +const OriginalSizeImage = ({ uri, alt, style }) => {
-+  const [layoutDimensions, setLayoutDimensions] = useState({ width: undefined, height: undefined });
-+  
-+  // This approach lets the base64 image render at its natural size by:
-+  // 1. Using resizeMode='contain' to preserve aspect ratio
-+  // 2. Letting the image calculate its own size (not specifying dimensions)
-+  // 3. Using onLayout to capture the natural dimensions once rendered
-+  
-+  useEffect(() => {
-+    Image.getSize(uri, (width, height) => {
-+      setLayoutDimensions({ width, height }) 
-+    })
-+  }, [])
 +
++  const [layoutDimensions, setLayoutDimensions] = useState(parseImageDimensions(alt));
++  
 +  const imageProps = {
 +    indicator: true,
 +    style: {
 +      ...style,
-+      width: layoutDimensions.width,  // Let the image determine its own width
-+      height: layoutDimensions.height, // Let the image determine its own height
-+      resizeMode: 'contain', // Preserve aspect ratio
-+      alignSelf: 'flex-start', // Don't stretch to container width
++      width: layoutDimensions.width,  
++      height: layoutDimensions.height, 
++      resizeMode: 'contain', 
++      alignSelf: 'flex-start',
 +    },
 +    source: { uri },
 +    onLayout: (event) => {
@@ -99,9 +90,23 @@ index 6f2ed8d..6da2c55 100644
 +    imageProps.accessibilityLabel = alt;
 +  }
 +
++  if(layoutDimensions.width === undefined || layoutDimensions.height === undefined) {
++    return <ActivityIndicator size={20} style = {{marginHorizontal: 10}}/>
++  }
++
 +  return <View style = {{width: layoutDimensions.width, height: layoutDimensions.height, marginHorizontal: 10}}>
 +            <Image {...imageProps} />
 +         </View>;
 +};
++
++function parseImageDimensions(imageDimensions) {
++
++  const [width, height] = imageDimensions.split(",")
++
++  return {
++    width: width ?? undefined,
++    height: height ?? undefined
++  }
++}
 +
  export default renderRules;
