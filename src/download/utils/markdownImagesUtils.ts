@@ -85,31 +85,33 @@ export const parseMarkdownImages = (markdownText: string, imagesObject: ImagesDi
     
     console.log("mardown text", markdownText)
     
-    const imagesTags = [...new Set(markdownText.match(/image:[^\s,.*'"`)]+/gi) || [])].map(tag => tag.toLowerCase());
+    const imagesTags = [...new Set(markdownText.match(/`?image:[^\s,.*'"`)]+`?/gi) || [])].map(tag => ({
+        full: tag,
+        clean: tag.replace(/`/g, '').toLowerCase()
+    }));
+
     let newMarkdown = markdownText
 
     console.log("Image tags", imagesTags)
 
     for (let tag of imagesTags) {
-
-        const img = imagesObject[tag]
+        const img = imagesObject[tag.clean]
 
         if (img === undefined)
             continue
 
         const base64Image = img.base64
-        const { width, height } = imagesObject[tag].dimensions
+        const { width, height } = img.dimensions
 
-        newMarkdown = newMarkdown.replaceAll(tag,
+        newMarkdown = newMarkdown.replaceAll(tag.full,
             base64Image !== undefined ?
                 `![${width},${height}](${base64Image})` :
-                tag
+                tag.clean
         )
     }
 
     return newMarkdown
-        .replace(".gif", "")
-        .replace("`", "")
+        .replaceAll(".gif", "")
 };
 
 const removeFileExtension = (filename: string) =>
