@@ -82,7 +82,7 @@ function DownloadModels() {
         })
     }
 
-    const { currentFileProgress, currentFileName, error, retry } = useSequentialDownload({
+    const { overallProgress, currentFileName, error, retry } = useSequentialDownload({
         downloads: DOWNLOADS,
         onAllFinished: startNewChat,
         onError
@@ -98,9 +98,15 @@ function DownloadModels() {
             {
                 error === undefined ?
                     <>
-                        <ThemedText style={styles.progressFileName}>{`Downloading ${currentFileName}`}</ThemedText>
+                        <ThemedText style={styles.progressFileName}>
+                            {
+                                currentFileName === null? 
+                                    "Preparing downloads...": 
+                                    `Downloading ${currentFileName}`
+                            }
+                        </ThemedText>
                         <Progress.Bar
-                            progress={currentFileProgress}
+                            progress={overallProgress}
                             width={width * 0.8}
                             height={10}
                             color={progressBarFilledColor}
