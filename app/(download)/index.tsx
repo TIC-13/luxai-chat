@@ -1,4 +1,5 @@
 import Button, { ButtonIcon, ButtonText } from "@/components/Button";
+import LoadingScreen from "@/components/LoadingScreen";
 import { ThemedSafeAreaView } from "@/components/ThemedSafeAreaView";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
@@ -8,7 +9,6 @@ import { DOWNLOADS } from "@/constants/Files";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import useCheckIfAllFilesDownloaded from "@/src/download/hooks/useCheckIfAllFilesDownloaded";
 import useSequentialDownload from "@/src/download/hooks/useSequentialDownload";
-import { useHeaderHeight } from "@react-navigation/elements";
 import * as Crypto from "expo-crypto";
 import { Image } from 'expo-image';
 import { router } from "expo-router";
@@ -29,7 +29,8 @@ export default function DonwnloadScreen() {
         onTrue: startNewChat
     })
 
-    const headerHeight = useHeaderHeight()
+    if(allFilesDownloaded === undefined) 
+        return <LoadingScreen />
 
     return (
         <ThemedSafeAreaView style={styles.safeArea}>

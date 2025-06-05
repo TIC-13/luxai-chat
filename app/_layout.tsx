@@ -1,6 +1,5 @@
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
-import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
 
 import { RagContextProvider } from '@/contexts/RagContext';
@@ -69,7 +68,6 @@ export default function RootLayout() {
           </Stack>
         </GestureHandlerRootView>
       </RagContextProvider>
-      <StatusBar style="auto" />
       <Toast config={toastConfig} />
     </ThemeProvider>
   );
