@@ -8,13 +8,14 @@ import { LLMMessage } from "@/src/chat/types/LLMMessage";
 import rollToBottom from '@/src/chat/utils/rollToTheBottom';
 import { useGetDictionayOfImagesFromManual } from "@/src/context/hooks/useParseMarkdown";
 import { ImagesDict, parseMarkdownImages } from "@/src/download/utils/markdownImagesUtils";
+import useThrottle from "@/src/hooks/useThrottle";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useHeaderHeight } from "@react-navigation/elements";
 import { DrawerActions } from "@react-navigation/native";
 import { useLocalSearchParams, useNavigation } from "expo-router";
 import Drawer from "expo-router/drawer";
 import { useRef } from "react";
-import { KeyboardAvoidingView, Platform, StyleSheet, View } from "react-native";
+import { KeyboardAvoidingView, Platform, StyleSheet, ToastAndroid, View } from "react-native";
 import { RectButton } from "react-native-gesture-handler";
 import Animated from "react-native-reanimated";
 import Toast from "react-native-toast-message";
@@ -37,6 +38,8 @@ export default function ChatLayout() {
 
     const headerHeight = useHeaderHeight()
     const navigation = useNavigation()
+
+    const throttledCantDoActionToast = useThrottle(showCantDoActionToast, 2000)
 
     if (imagesDict === undefined)
         return <LoadingScreen />
@@ -85,7 +88,7 @@ export default function ChatLayout() {
 
                     headerLeft: () => (
                         <RectButton
-                            onPress={isUnableToSend ? showCantDoActionToast : () => navigation.dispatch(DrawerActions.openDrawer())}
+                            onPress={isUnableToSend ? throttledCantDoActionToast : () => navigation.dispatch(DrawerActions.openDrawer())}
                             style={styles.headerIconContainer}
                         >
                             <MaterialCommunityIcons
@@ -100,7 +103,7 @@ export default function ChatLayout() {
 
                     headerRight: () =>
                         <RectButton
-                            onPress={isUnableToSend ? showCantDoActionToast : startNewChat}
+                            onPress={isUnableToSend ? throttledCantDoActionToast : startNewChat}
                             style={styles.headerIconContainer}
                         >
                             <MaterialCommunityIcons
@@ -118,10 +121,14 @@ export default function ChatLayout() {
 }
 
 function showCantDoActionToast() {
+    if(Platform.OS === "android"){
+        ToastAndroid.showWithGravity("Wait until the app finishes answering", 1000, ToastAndroid.TOP)
+        return
+    }
     Toast.show({
         type: 'info',
         text1: "You can't do that right now",
-        text2: "Wait for the app to finish answering the question",
+        text2: "Wait until the app finishes answering",
     })
 }
 
