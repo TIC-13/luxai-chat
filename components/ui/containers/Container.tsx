@@ -60,7 +60,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         width: "100%",
         paddingVertical: 20,
-        paddingHorizontal: 5,
+        paddingHorizontal: 10,
         borderRadius: 20
     },
 
@@ -73,7 +73,7 @@ const styles = StyleSheet.create({
     contentContainer: {
         flex: 3,
         justifyContent: 'space-between',
-        rowGap: 5,
+        rowGap: 5
     },
 
     title: {

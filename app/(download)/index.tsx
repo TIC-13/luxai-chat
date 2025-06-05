@@ -19,8 +19,8 @@ import Toast from "react-native-toast-message";
 
 const { width } = Dimensions.get("window")
 
-export const startNewChat = () => 
-    router.replace({pathname: "/chat/[id]", params: {id: Crypto.randomUUID() }})
+export const startNewChat = () =>
+    router.replace({ pathname: "/chat/[id]", params: { id: Crypto.randomUUID() } })
 
 export default function DonwnloadScreen() {
     const [downloadStarted, setDownloadStarted] = useState(false);
@@ -29,14 +29,14 @@ export default function DonwnloadScreen() {
         onTrue: startNewChat
     })
 
-    if(allFilesDownloaded === undefined) 
+    if (allFilesDownloaded === undefined)
         return <LoadingScreen />
 
     return (
         <ThemedSafeAreaView style={styles.safeArea}>
 
             <View style={styles.contentContainer}>
-                <View style={styles.imageWithTextContainer}>
+                <View style={styles.downloadArea}>
                     <Image
                         source={require("@/assets/images/download_light.png")}
                         style={{ width: 170, height: 170 }}
@@ -45,7 +45,21 @@ export default function DonwnloadScreen() {
                         Before we begin, we need to download AI models for the app to function
                     </ThemedText>
                 </View>
+                <View style={styles.downloadButtonContainer}>
+                    {
+                        downloadStarted ?
+                            <DownloadModels /> :
+                            <Button
+                                onPress={() => setDownloadStarted(true)}
+                            >
+                                <ButtonIcon name="download" />
+                                <ButtonText>Start downloads</ButtonText>
+                            </Button>
+                    }
+                </View>
+            </View>
 
+            <View style={styles.warningArea}>
                 <InfoContainer>
                     <ContainerIconView>
                         <InfoContainerIcon name="information" />
@@ -55,19 +69,6 @@ export default function DonwnloadScreen() {
                         <InfoContainerText>The downloads are very large, beware of using mobile data</InfoContainerText>
                     </ContainerContentView>
                 </InfoContainer>
-            </View>
-
-            <View style={styles.buttonContainer}>
-                {
-                    downloadStarted ?
-                        <DownloadModels /> :
-                        <Button
-                            onPress={() => setDownloadStarted(true)}
-                        >
-                            <ButtonIcon name="download" />
-                            <ButtonText>Start downloads</ButtonText>
-                        </Button>
-                }
             </View>
         </ThemedSafeAreaView>
     );
@@ -101,12 +102,13 @@ function DownloadModels() {
                     <>
                         <ThemedText style={styles.progressFileName}>
                             {
-                                currentFileName === null? 
-                                    "Preparing downloads...": 
+                                currentFileName === null ?
+                                    "Preparing downloads..." :
                                     `Downloading ${currentFileName}`
                             }
                         </ThemedText>
                         <Progress.Bar
+                            indeterminate={currentFileName == null}
                             progress={overallProgress}
                             width={width * 0.8}
                             height={10}
@@ -134,15 +136,15 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'space-evenly'
     },
-    contentContainer: { 
+    contentContainer: {
         //flex: 5, 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        rowGap: 30 
+        justifyContent: 'center',
+        alignItems: 'center',
+        rowGap: 30
     },
-    imageWithTextContainer: { 
+    downloadArea: {
         flexDirection: 'row',
-        width: "100%", 
+        width: "100%",
         alignItems: 'center'
     },
     headerTitle: {
@@ -153,7 +155,7 @@ const styles = StyleSheet.create({
         fontSize: 14,
         fontWeight: '300'
     },
-    buttonContainer: {
+    warningArea: {
         //flex: 4,
         justifyContent: 'center',
         alignItems: 'center',
@@ -178,4 +180,9 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
+    downloadButtonContainer: { 
+        height: 70, 
+        justifyContent: 'flex-start', 
+        alignItems: 'center'
+    }
 });

@@ -28,14 +28,14 @@ export const Colors = {
     iconContainer: '#F5F5F5',
     iconColor: '#11181C',
 
-    buttonBackground: '#0A7EA4',
+    buttonBackground: '#0A84D2',
     buttonLabel: '#FFFFFF',
 
     toastBackground: '#F5F5F5', 
     toastTitle: '#11181C', 
     toastSubtitle: '#687076',
 
-    progressBarFilled: '#0A7EA4', 
+    progressBarFilled: '#0A84D2', 
     progressBarUnfilled: '#E0E0E0',
 
     infoCardBackground: '#E3F2FD',
@@ -82,10 +82,10 @@ export const Colors = {
     progressBarFilled: '#0A7EA4',
     progressBarUnfilled: '#4B5563',
 
-    infoCardBackground: '#1A237E',
-    infoCardIconTint: '#64B5F6',
-    infoCardTitleTint: '#BBDEFB',
-    infoCardTextTint: '#90CAF9',
+    infoCardBackground: '#23272A', 
+    infoCardIconTint: '#90CAF9', 
+    infoCardTitleTint: '#E3F2FD', 
+    infoCardTextTint: '#E3F2FD', 
 
     warningCardBackground: '#3E2723',
     warningCardIconTint: '#FFD54F',
