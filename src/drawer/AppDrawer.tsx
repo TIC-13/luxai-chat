@@ -101,7 +101,7 @@ function DrawerItem({
                     color={iconColor}
                 />
             }
-            <ThemedText style={styles.itemLabel}>
+            <ThemedText style={styles.itemLabel} numberOfLines={1}>
                 {label}
             </ThemedText>
         </Pressable>
