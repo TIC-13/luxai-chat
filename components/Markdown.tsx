@@ -4,6 +4,7 @@ import Markdown, { MarkdownProps } from "react-native-markdown-display";
 export default function MyMarkdown(props: MarkdownProps & {children: string}) {
 
     const textColor = useThemeColor("text")
+    const codeInlineColor = useThemeColor("codeInlineBackground")
 
     return (
         <Markdown
@@ -20,6 +21,7 @@ export default function MyMarkdown(props: MarkdownProps & {children: string}) {
                 bullet_list_content: {flexDirection: 'row', flexWrap: 'wrap'},
                 paragraph: {flexDirection: 'row', flexWrap: 'wrap'},
                 textgroup: {flexDirection: 'row', flexWrap: 'wrap'},
+                code_inline: { backgroundColor: codeInlineColor}
             }}
             //debugPrintTree={true}
             {...props}
