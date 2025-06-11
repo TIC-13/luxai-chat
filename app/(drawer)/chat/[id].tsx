@@ -37,13 +37,15 @@ export default function ChatLayout() {
     const headerHeight = useHeaderHeight()
     const navigation = useNavigation()
 
-    const throttledCantDoActionToast = useThrottle(showCantDoActionToast, 2000)
+    const throttledCantDoActionToast = useThrottle(showYouCantDoThatToast, 0)
 
     const [deleteModalVisible, setDeleteModalVisible] = useState(false);
 
-    const canUseHeaderIcon = !isUnableToSend
-    const headerIconCallback = (callback: () => void) =>
-        () => canUseHeaderIcon ? callback() : throttledCantDoActionToast()
+    const canSend = !isUnableToSend
+    const chatExists = messages.length > 0
+
+    const headerIconCallback = (callback: () => void, message?: string) =>
+        () => canSend ? callback() : throttledCantDoActionToast(message)
 
     if (imagesDict === undefined)
         return <LoadingScreen />
@@ -91,11 +93,14 @@ export default function ChatLayout() {
                     headerTitle: "LuxAI Chat",
                     headerLeft: () => (
                         <HeaderIconContainer
-                            onPress={headerIconCallback(() => navigation.dispatch(DrawerActions.openDrawer()))}
+                            onPress={
+                                headerIconCallback(() => navigation.dispatch(DrawerActions.openDrawer()),
+                                "Wait until the app finishes answering"
+                            )}
                         >
                             <HeaderIcon
                                 name="menu"
-                                active={canUseHeaderIcon}
+                                active={canSend}
                             />
                         </HeaderIconContainer>
                     ),
@@ -104,20 +109,20 @@ export default function ChatLayout() {
                         <View style={{ flexDirection: 'row', height: "100%" }}>
 
                             <HeaderIconContainer
-                                onPress={headerIconCallback(startNewChat)}
+                                onPress={chatExists? headerIconCallback(startNewChat): () => null}
                             >
                                 <HeaderIcon
                                     name="plus"
-                                    active={canUseHeaderIcon}
+                                    active={canSend && chatExists}
                                 />
                             </HeaderIconContainer>
 
                             <HeaderIconContainer
-                                onPress={headerIconCallback(() => setDeleteModalVisible(true))}
+                                onPress={chatExists ? headerIconCallback(() => setDeleteModalVisible(true)): () => null}
                             >
                                 <HeaderIcon
                                     name="trash-can"
-                                    active={canUseHeaderIcon}
+                                    active={canSend && chatExists}
                                 />
                             </HeaderIconContainer>
 
@@ -165,9 +170,9 @@ export default function ChatLayout() {
     }
 }
 
-function showCantDoActionToast() {
+function showYouCantDoThatToast(message: string = "Wait until the app finishes answering") {
     if (Platform.OS === "android") {
-        ToastAndroid.showWithGravity("Wait until the app finishes answering", 1000, ToastAndroid.TOP)
+        ToastAndroid.showWithGravity(message, 1000, ToastAndroid.TOP)
         return
     }
     Toast.show({
