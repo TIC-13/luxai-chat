@@ -1,30 +1,27 @@
+import { HeaderIcon, HeaderIconContainer } from "@/components/chat/components/HeaderIcon";
 import LoadingScreen from "@/components/LoadingScreen";
+import { ModalBackdrop, ModalButton, ModalButtonContainer, ModalContainer, ModalFooter, ModalHeader, ModalText, ModalTitle, MyModal } from "@/components/Modal";
 import { ThemedSafeAreaView } from "@/components/ThemedSafeAreaView";
-import { useThemeColor } from "@/hooks/useThemeColor";
 import MessageBubble from "@/src/chat/components/MessageBubble";
 import MessageInputField from "@/src/chat/components/MessageInputField";
 import useLLM from "@/src/chat/hooks/useLLM";
 import { LLMMessage } from "@/src/chat/types/LLMMessage";
 import rollToBottom from '@/src/chat/utils/rollToTheBottom';
+import { conversations } from "@/src/chat/utils/storeConversations";
 import { useGetDictionayOfImagesFromManual } from "@/src/context/hooks/useParseMarkdown";
 import { ImagesDict, parseMarkdownImages } from "@/src/download/utils/markdownImagesUtils";
 import useThrottle from "@/src/hooks/useThrottle";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useHeaderHeight } from "@react-navigation/elements";
 import { DrawerActions } from "@react-navigation/native";
 import { useLocalSearchParams, useNavigation } from "expo-router";
 import Drawer from "expo-router/drawer";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { KeyboardAvoidingView, Platform, StyleSheet, ToastAndroid, View } from "react-native";
-import { RectButton } from "react-native-gesture-handler";
 import Animated from "react-native-reanimated";
 import Toast from "react-native-toast-message";
 import { startNewChat } from "../../(download)";
 
 export default function ChatLayout() {
-
-    const headerTint = useThemeColor('headerTint');
-    const headerTintInactive = useThemeColor('headerTintInactive');
 
     const scrollViewRef = useRef<Animated.ScrollView>(null);
 
@@ -41,6 +38,12 @@ export default function ChatLayout() {
 
     const throttledCantDoActionToast = useThrottle(showCantDoActionToast, 2000)
 
+    const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+
+    const canUseHeaderIcon = !isUnableToSend
+    const headerIconCallback = (callback: () => void) =>
+        () => canUseHeaderIcon ? callback() : throttledCantDoActionToast()
+
     if (imagesDict === undefined)
         return <LoadingScreen />
 
@@ -51,6 +54,7 @@ export default function ChatLayout() {
                 behavior={Platform.OS === "ios" ? "padding" : "height"}
                 keyboardVerticalOffset={Platform.OS === "ios" ? 60 : 0}
             >
+
                 <Animated.ScrollView
                     ref={scrollViewRef}
                     style={styles.bubblesContainer}
@@ -80,48 +84,89 @@ export default function ChatLayout() {
                         onPress={() => rollToBottom(scrollViewRef)}
                     />
                 </View>
+                <DeleteConversationModal />
             </KeyboardAvoidingView>
             <Drawer.Screen
                 options={{
-
                     headerTitle: "LuxAI Chat",
-
                     headerLeft: () => (
-                        <RectButton
-                            onPress={isUnableToSend ? throttledCantDoActionToast : () => navigation.dispatch(DrawerActions.openDrawer())}
-                            style={styles.headerIconContainer}
+                        <HeaderIconContainer
+                            onPress={headerIconCallback(() => navigation.dispatch(DrawerActions.openDrawer()))}
                         >
-                            <MaterialCommunityIcons
+                            <HeaderIcon
                                 name="menu"
-                                color={isUnableToSend ?
-                                    headerTintInactive : headerTint
-                                }
-                                size={20}
+                                active={canUseHeaderIcon}
                             />
-                        </RectButton>
+                        </HeaderIconContainer>
                     ),
 
                     headerRight: () =>
-                        <RectButton
-                            onPress={isUnableToSend ? throttledCantDoActionToast : startNewChat}
-                            style={styles.headerIconContainer}
-                        >
-                            <MaterialCommunityIcons
-                                name="plus"
-                                color={isUnableToSend ?
-                                    headerTintInactive : headerTint
-                                }
-                                size={20}
-                            />
-                        </RectButton>
+                        <View style={{ flexDirection: 'row', height: "100%" }}>
+
+                            <HeaderIconContainer
+                                onPress={headerIconCallback(startNewChat)}
+                            >
+                                <HeaderIcon
+                                    name="plus"
+                                    active={canUseHeaderIcon}
+                                />
+                            </HeaderIconContainer>
+
+                            <HeaderIconContainer
+                                onPress={headerIconCallback(() => setDeleteModalVisible(true))}
+                            >
+                                <HeaderIcon
+                                    name="trash-can"
+                                    active={canUseHeaderIcon}
+                                />
+                            </HeaderIconContainer>
+
+                        </View>
                 }}
             />
-        </ThemedSafeAreaView>
+        </ThemedSafeAreaView >
     )
+
+    function DeleteConversationModal() {
+        return (
+            <MyModal visible={deleteModalVisible}>
+                <ModalBackdrop>
+                    <ModalContainer>
+                        <ModalHeader>
+                            <ModalTitle>Delete conversation</ModalTitle>
+                        </ModalHeader>
+
+                        <ModalText>
+                            Are you sure you want to delete this conversation?
+                        </ModalText>
+
+                        <ModalFooter>
+                            <ModalButtonContainer>
+                                <ModalButton
+                                    variant="secondary"
+                                    title="Cancel"
+                                    onPress={() => setDeleteModalVisible(false)}
+                                />
+                                <ModalButton
+                                    variant="danger"
+                                    title="Delete"
+                                    onPress={() => {
+                                        startNewChat()
+                                        conversations.remove(id)
+                                        setDeleteModalVisible(false)
+                                    }}
+                                />
+                            </ModalButtonContainer>
+                        </ModalFooter>
+                    </ModalContainer>
+                </ModalBackdrop>
+            </MyModal>
+        )
+    }
 }
 
 function showCantDoActionToast() {
-    if(Platform.OS === "android"){
+    if (Platform.OS === "android") {
         ToastAndroid.showWithGravity("Wait until the app finishes answering", 1000, ToastAndroid.TOP)
         return
     }
@@ -163,11 +208,5 @@ const styles = StyleSheet.create({
         paddingVertical: 0,
         justifyContent: "center",
         alignItems: "center",
-    },
-    headerIconContainer: {
-        width: 60,
-        height: "100%",
-        justifyContent: 'center',
-        alignItems: 'center'
     }
 })

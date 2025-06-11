@@ -50,8 +50,28 @@ export const Colors = {
 
     activityIndicator: '#0A7EA4',
 
+
     codeInlineBackground: '#F5F5F5',
     codeInlineText: '#11181C',
+
+    // Modal Colors
+    modalBackground: '#FFFFFF',
+    modalBorder: '#E0E0E0',
+    modalHeaderBackground: '#F8F9FA',
+    modalFooterBackground: '#F8F9FA',
+    modalTitle: '#11181C',
+    modalText: '#11181C',
+    modalIcon: '#687076',
+    
+    modalButtonPrimary: '#0A7EA4',
+    modalButtonPrimaryText: '#FFFFFF',
+    modalButtonSecondary: '#F5F5F5',
+    modalButtonSecondaryText: '#11181C',
+    modalButtonDanger: '#D32F2F',
+    modalButtonDangerText: '#FFFFFF',
+    
+    modalCloseButton: '#F5F5F5',
+    modalCloseButtonIcon: '#687076',
 
   },
   dark: {
@@ -99,6 +119,24 @@ export const Colors = {
 
     codeInlineBackground: '#000000',
     codeInlineText: '#ECEDEE',
+
+    modalBackground: '#2C2F33',
+    modalBorder: '#40444B',
+    modalHeaderBackground: '#23272A',
+    modalFooterBackground: '#23272A',
+    modalTitle: '#ECEDEE',
+    modalText: '#ECEDEE',
+    modalIcon: '#9BA1A6',
+    
+    modalButtonPrimary: '#64B5F6',
+    modalButtonPrimaryText: '#151718',
+    modalButtonSecondary: '#40444B',
+    modalButtonSecondaryText: '#ECEDEE',
+    modalButtonDanger: '#F44336',
+    modalButtonDangerText: '#FFFFFF',
+    
+    modalCloseButton: '#40444B',
+    modalCloseButtonIcon: '#9BA1A6',
 
   },
 };
