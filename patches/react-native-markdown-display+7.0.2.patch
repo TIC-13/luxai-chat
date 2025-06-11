@@ -1,8 +1,8 @@
 diff --git a/node_modules/react-native-markdown-display/src/lib/renderRules.js b/node_modules/react-native-markdown-display/src/lib/renderRules.js
-index 6f2ed8d..02e1ab4 100644
+index 6f2ed8d..caa7426 100644
 --- a/node_modules/react-native-markdown-display/src/lib/renderRules.js
 +++ b/node_modules/react-native-markdown-display/src/lib/renderRules.js
-@@ -1,18 +1,20 @@
+@@ -1,18 +1,21 @@
 -import React from 'react';
  import {
 -  Text,
@@ -24,12 +24,13 @@ index 6f2ed8d..02e1ab4 100644
  
  import textStyleProps from './data/textStyleProps';
  
-+import { useState } from 'react';
++import { useMemo } from 'react';
++
 +
  const renderRules = {
    // when unknown elements are introduced, so it wont break
    unknown: (node, children, parent, styles) => null,
-@@ -282,21 +284,17 @@ const renderRules = {
+@@ -282,21 +285,17 @@ const renderRules = {
        return null;
      }
  
@@ -41,13 +42,13 @@ index 6f2ed8d..02e1ab4 100644
 -        uri: show === true ? src : `${defaultImageHandler}${src}`,
 -      },
 -    };
-+    const uri = show === true ? src : `${defaultImageHandler}${src}`;
- 
+-
 -    if (alt) {
 -      imageProps.accessible = true;
 -      imageProps.accessibilityLabel = alt;
 -    }
--
++    const uri = show === true ? src : `${defaultImageHandler}${src}`;
+ 
 -    return <FitImage {...imageProps} />;
 +    // Use the OriginalSizeImage component to maintain original dimensions
 +    return (
@@ -61,13 +62,13 @@ index 6f2ed8d..02e1ab4 100644
    },
  
    // Text Output
-@@ -344,4 +342,48 @@ const renderRules = {
+@@ -344,4 +343,44 @@ const renderRules = {
    ),
  };
  
 +const OriginalSizeImage = ({ uri, alt, style }) => {
 +
-+  const [layoutDimensions, setLayoutDimensions] = useState(parseImageDimensions(alt));
++  const layoutDimensions = useMemo(() => parseImageDimensions(alt), []);
 +  
 +  const imageProps = {
 +    indicator: true,
@@ -79,10 +80,6 @@ index 6f2ed8d..02e1ab4 100644
 +      alignSelf: 'flex-start',
 +    },
 +    source: { uri },
-+    onLayout: (event) => {
-+      const { width, height } = event.nativeEvent.layout;
-+      setLayoutDimensions({ width, height });
-+    }
 +  };
 +
 +  if (alt) {
