@@ -73,6 +73,8 @@ export const Colors = {
     modalCloseButton: '#F5F5F5',
     modalCloseButtonIcon: '#687076',
 
+    drawerItemBackground: '#F5F5F5',
+
   },
   dark: {
     text: '#ECEDEE',
@@ -137,6 +139,8 @@ export const Colors = {
     
     modalCloseButton: '#40444B',
     modalCloseButtonIcon: '#9BA1A6',
+
+    drawerItemBackground: '#1F2937',
 
   },
 };

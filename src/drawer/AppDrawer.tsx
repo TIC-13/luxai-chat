@@ -30,6 +30,7 @@ export default function AppDrawer() {
                 <DrawerItem
                     label="New Chat"
                     icon="plus"
+                    withBackground={true}
                     onPress={() => router.navigate({
                         pathname: "/chat/[id]",
                         params: { id: Crypto.randomUUID() }
@@ -78,29 +79,39 @@ function DrawerSection({ children }: { children: React.ReactNode }) {
 function DrawerItem({
     label,
     icon,
-    onPress
+    onPress,
+    withBackground = false
 }: {
     label: string;
     icon?: ComponentProps<typeof MaterialCommunityIcons>["name"];
     onPress?: () => void;
+    withBackground?: boolean;
 }) {
     const iconColor = useThemeColor('icon');
     const headerBackground = useThemeColor('headerBackground');
+    const itemBackground = useThemeColor('drawerItemBackground');
 
     return (
         <Pressable
-            style={styles.item}
+            style={[
+                styles.item,
+                withBackground && { 
+                    backgroundColor: itemBackground,
+                    marginHorizontal: 0,
+                    borderRadius: 8
+                }
+            ]}
             onPress={onPress}
             android_ripple={{ color: headerBackground }}
         >
-            {
-                icon !== undefined &&
+            {icon !== undefined && (
                 <MaterialCommunityIcons
                     name={icon}
                     size={24}
                     color={iconColor}
+                    style = {{ marginRight: 12 }}
                 />
-            }
+            )}
             <ThemedText style={styles.itemLabel} numberOfLines={1}>
                 {label}
             </ThemedText>
@@ -108,11 +119,14 @@ function DrawerItem({
     );
 }
 
+// ...existing styles remain the same...
+
 const styles = StyleSheet.create({
     header: {
         padding: 16,
         marginBottom: 8,
-        fontWeight: '600'
+        fontWeight: '600',
+        borderRadius: 30
     },
     headerTitle: {
         fontSize: 20,
@@ -120,6 +134,7 @@ const styles = StyleSheet.create({
     },
     section: {
         marginTop: 8,
+        paddingTop: 10,
         borderTopWidth: StyleSheet.hairlineWidth,
         borderTopColor: '#ccc'
     },
@@ -130,7 +145,7 @@ const styles = StyleSheet.create({
         marginVertical: 4
     },
     itemLabel: {
-        marginLeft: 32,
+        //marginLeft: 32,
         fontSize: 16
     }
 });
