@@ -1,4 +1,5 @@
 import { HeaderIcon, HeaderIconContainer } from "@/components/chat/components/HeaderIcon";
+import { KeyboardSpacer } from "@/components/KeyboardSpacer";
 import LoadingScreen from "@/components/LoadingScreen";
 import { ModalBackdrop, ModalButton, ModalButtonContainer, ModalContainer, ModalFooter, ModalHeader, ModalText, ModalTitle, MyModal } from "@/components/Modal";
 import { ThemedSafeAreaView } from "@/components/ThemedSafeAreaView";
@@ -16,7 +17,7 @@ import { DrawerActions } from "@react-navigation/native";
 import { useLocalSearchParams, useNavigation } from "expo-router";
 import Drawer from "expo-router/drawer";
 import { useRef, useState } from "react";
-import { KeyboardAvoidingView, Platform, StyleSheet, ToastAndroid, View } from "react-native";
+import { Platform, StyleSheet, ToastAndroid, View } from "react-native";
 import Animated from "react-native-reanimated";
 import Toast from "react-native-toast-message";
 import { startNewChat } from "../../(download)";
@@ -49,10 +50,8 @@ export default function ChatLayout() {
 
     return (
         <ThemedSafeAreaView style={{ flex: 1 }}>
-            <KeyboardAvoidingView
+            <View
                 style={styles.mainContainer}
-                behavior={Platform.OS === "ios" ? "padding" : "height"}
-                keyboardVerticalOffset={Platform.OS === "ios" ? 60 : 0}
             >
 
                 <Animated.ScrollView
@@ -84,8 +83,9 @@ export default function ChatLayout() {
                         onPress={() => rollToBottom(scrollViewRef)}
                     />
                 </View>
+                <KeyboardSpacer/>
                 <DeleteConversationModal />
-            </KeyboardAvoidingView>
+            </View>
             <Drawer.Screen
                 options={{
                     headerTitle: "LuxAI Chat",
