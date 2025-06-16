@@ -126,7 +126,7 @@ const styles = StyleSheet.create({
         padding: 16,
         marginBottom: 8,
         fontWeight: '600',
-        borderRadius: 30
+        borderRadius: 8
     },
     headerTitle: {
         fontSize: 20,
