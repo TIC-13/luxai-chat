@@ -1,50 +1,83 @@
-# Welcome to your Expo app 👋
+## Lux.AI Chat
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+**Lux.AI Chat** is a fully local AI-powered assistant designed to answer questions about any knowledge base using Retrieval-Augmented Generation (RAG). 
 
-## Get started
+### 🔍 Key Features
+- **Local Language Model**: Utilizes [Qwen2.5-1.5B-Instruct-GGUF](https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct-GGUF), a compact and efficient instruction-tuned LLM.
+- **Local RAG Pipeline**: Employs the [bge-small-en-v1.5](https://huggingface.co/BAAI/bge-small-en-v1.5) embedding model for semantic search.
+- **Image-Enhanced Chat**: Capable of displaying relevant images in the chat to enhance answers and context.
+- **Private & Secure**: Stores chat history locally with full support for deletion and no cloud-based data storage. 
+- **Automatic Runtime Downloads**: All required models and files are downloaded automatically at runtime—no manual setup needed.
 
-1. Install dependencies
+## 📋 Prerequisites
 
-   ```bash
-   npm install
-   ```
+Before running the app, ensure you have the following installed:
 
-2. Start the app
+- **Node.js**: Version 20.x or newer
+- **Android Studio** with Android SDK and Java Development Kit (JDK)
+- **Yarn package manager**
 
-   ```bash
-   npx expo start
-   ```
+## 🚀 Installation
 
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
+1. **Clone the repository**:
 ```bash
-npm run reset-project
+git clone --recurse-submodules https://github.com/TIC-13/rag-chat
+cd rag-chat
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+2. **Install dependencies**:
+```bash
+yarn 
+```
 
-## Learn more
+## 📱 Running the App
 
-To learn more about developing your project with Expo, look at the following resources:
+### Android 
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+1. **Build and run the app**:
+```bash
+yarn expo run:android
+```
 
-## Join the community
+This command will:
+- Build the app for Android
+- Install it on your connected device or emulator
+- Start the Metro bundler
+- Launch the app automatically
 
-Join our community of developers creating universal apps.
+2. **For development after initial build**:
+```bash
+yarn expo start -d
+```
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+After the initial build, you can use `yarn expo start -d` to run the development server without rebuilding.
+
+### Alternative Build Method
+
+You can also build the app using Android Studio:
+
+1. **Open in Android Studio**:
+   - Open Android Studio
+   - Select "Open an existing Android Studio project"
+   - Navigate to and select the `android` folder in your project directory
+   - Build and run the project from Android Studio using the standard Android development workflow
+   - Run `yarn expo start -d` in the terminal and restart the app
+
+### Prerequisites for Android Development
+
+- **Android Device**: Either a physical Android device with USB debugging enabled, or an Android Virtual Device (AVD) running in Android Studio
+- **ADB**: Android Debug Bridge should be accessible from your terminal (usually installed with Android Studio)
+
+## 🔧 Configuration
+
+The app automatically downloads required AI models at runtime. No additional configuration is needed for the AI features.
+
+You can switch the LLM and RAG files, including the database, by editing constants like `MODEL_LINK`, `MODEL_NAME` `RAG_MODEL_LINK` and `RAG_MODEL_NAME` on `constants/Files.ts`
+
+## 📝 Usage
+
+1. Launch the app on your Android device
+2. Wait for the initial model downloads to complete
+3. Start asking questions about the Moto Razr 40 manual
+4. The AI will provide relevant answers with supporting images when available
+5. Chat history is stored locally and can be cleared from within the app
