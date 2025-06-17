@@ -1,9 +1,9 @@
+import { AppVersion } from "@/app.config";
 import { HeaderIcon, HeaderIconContainer } from "@/components/chat/components/HeaderIcon";
 import { KeyboardSpacer } from "@/components/KeyboardSpacer";
 import LoadingScreen from "@/components/LoadingScreen";
 import { ModalBackdrop, ModalButton, ModalButtonContainer, ModalContainer, ModalFooter, ModalHeader, ModalText, ModalTitle, MyModal } from "@/components/Modal";
 import { ThemedSafeAreaView } from "@/components/ThemedSafeAreaView";
-import AppVersion from "@/constants/AppVersion";
 import MessageBubble from "@/src/chat/components/MessageBubble";
 import MessageInputField from "@/src/chat/components/MessageInputField";
 import useLLM from "@/src/chat/hooks/useLLM";

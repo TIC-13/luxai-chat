@@ -1,19 +1,35 @@
 const LuxAIChat = {
-    name: "LuxAI Chat",
-    icon: "./assets/images/app-icon.png",
-    androidPackage: "com.luxai.ragchat",
-    splashScreenConfig: {
-        backgroundColor: "#fff",
-        image: "./assets/images/splash-icon-lightmode.png",
-        dark: {
-            image: "./assets/images/splash-icon-darkmode.png",
-            backgroundColor: "#151718",
-        },
-        imageWidth: 200,
+  name: "LuxAI Chat",
+  icon: "./assets/images/app-icon.png",
+  androidPackage: "com.luxai.ragchat",
+  splashScreenConfig: {
+    backgroundColor: "#fff",
+    image: "./assets/images/splash-icon-lightmode.png",
+    dark: {
+      image: "./assets/images/splash-icon-darkmode.png",
+      backgroundColor: "#151718",
     },
+    imageWidth: 200,
+  },
 }
 
-const AppVersion = LuxAIChat;
+const MotorolaChat = {
+  name: "Moto Chat Razr 40",
+  icon: "./assets/images/motorola_icon.png",
+  androidPackage: "com.luxai.razr40",
+  splashScreenConfig: {
+    backgroundColor: "#fff",
+    image: "./assets/images/motorola_splash_screen.png",
+    dark: {
+      image: "./assets/images/motorola_splash_screen.png",
+      backgroundColor: "#151718",
+    },
+    imageWidth: 200,
+    resizeMode: "contain",
+  },
+}
+
+const AppVersion = process.env.EXPO_PUBLIC_APP === "RAZR_40"? MotorolaChat: LuxAIChat;
 
 export default {
   expo: {
@@ -69,5 +85,5 @@ export default {
   },
 };
 
-export { LuxAIChat };
+export { AppVersion };
 

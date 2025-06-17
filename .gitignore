@@ -39,3 +39,5 @@ yarn-error.*
 app-example
 
 android/app/src/main/assets
+
+.env

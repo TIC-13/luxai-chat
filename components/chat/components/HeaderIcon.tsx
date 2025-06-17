@@ -31,7 +31,7 @@ export function HeaderIcon(props: ComponentProps<typeof MaterialCommunityIcons> 
 
 const styles = StyleSheet.create({
     headerIconContainer: {
-        width: 60,
+        width: 40,
         height: "100%",
         justifyContent: 'center',
         alignItems: 'center'
