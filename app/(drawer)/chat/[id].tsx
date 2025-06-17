@@ -3,6 +3,7 @@ import { KeyboardSpacer } from "@/components/KeyboardSpacer";
 import LoadingScreen from "@/components/LoadingScreen";
 import { ModalBackdrop, ModalButton, ModalButtonContainer, ModalContainer, ModalFooter, ModalHeader, ModalText, ModalTitle, MyModal } from "@/components/Modal";
 import { ThemedSafeAreaView } from "@/components/ThemedSafeAreaView";
+import AppVersion from "@/constants/AppVersion";
 import MessageBubble from "@/src/chat/components/MessageBubble";
 import MessageInputField from "@/src/chat/components/MessageInputField";
 import useLLM from "@/src/chat/hooks/useLLM";
@@ -90,7 +91,7 @@ export default function ChatLayout() {
             </View>
             <Drawer.Screen
                 options={{
-                    headerTitle: "LuxAI Chat",
+                    headerTitle: AppVersion.name,
                     headerLeft: () => (
                         <HeaderIconContainer
                             onPress={
