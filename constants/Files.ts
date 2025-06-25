@@ -17,7 +17,7 @@ const EMBEDDINGS_NAME = "embeddings.csv"
 const CHUNKS_LINK = "https://drive.google.com/uc?export=download&id=15tFvn0YYJcr1QDeefG8ODk-jaMigu4Bh"
 const CHUNKS_NAME = "chunks.txt"
 
-const RERANKER_FILE_LINK = "https://huggingface.cos/mixedbread-ai/mxbai-rerank-xsmall-v1/resolve/main/onnx/model.onnx"
+const RERANKER_FILE_LINK = "https://huggingface.co/mixedbread-ai/mxbai-rerank-xsmall-v1/resolve/main/onnx/model.onnx"
 const RERANKER_FILE_NAME = "mxbai-reranker-xsmall.onnx"
 
 const RERANKER_TOKENIZER_LINK = "https://drive.google.com/uc?export=download&id=1T_Vy_vXAY6p72BT2E_bzt4ABVHfWmoFj"
