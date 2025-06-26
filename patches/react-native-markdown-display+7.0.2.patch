@@ -1,5 +1,5 @@
 diff --git a/node_modules/react-native-markdown-display/src/lib/renderRules.js b/node_modules/react-native-markdown-display/src/lib/renderRules.js
-index 6f2ed8d..caa7426 100644
+index 6f2ed8d..ba11d02 100644
 --- a/node_modules/react-native-markdown-display/src/lib/renderRules.js
 +++ b/node_modules/react-native-markdown-display/src/lib/renderRules.js
 @@ -1,18 +1,21 @@
@@ -30,7 +30,119 @@ index 6f2ed8d..caa7426 100644
  const renderRules = {
    // when unknown elements are introduced, so it wont break
    unknown: (node, children, parent, styles) => null,
-@@ -282,21 +285,17 @@ const renderRules = {
+@@ -87,12 +90,12 @@ const renderRules = {
+ 
+   // Lists
+   bullet_list: (node, children, parent, styles) => (
+-    <View key={node.key} style={styles._VIEW_SAFE_bullet_list}>
++    <View key={node.key} style={styles._VIEW_SAFE_bullet_list} name={"bullet_list"}>
+       {children}
+     </View>
+   ),
+   ordered_list: (node, children, parent, styles) => (
+-    <View key={node.key} style={styles._VIEW_SAFE_ordered_list}>
++    <View key={node.key} style={styles._VIEW_SAFE_ordered_list} name={"bullet_list"}>
+       {children}
+     </View>
+   ),
+@@ -120,19 +123,41 @@ const renderRules = {
+       }
+     }
+ 
++    const hasNestedLists = (children) => {
++      if (!children) return false;
++      const childArray = Array.isArray(children) ? children : [children];
++
++      return childArray.some(child => {
++        if (!child || !child.props) return false;
++
++        const name = child.props.name
++
++        return name === 'bullet_list' || name === 'ordered_list'
++
++      });
++    };
++
++    const containsNestedLists = hasNestedLists(children);
++
+     if (hasParents(parent, 'bullet_list')) {
+       return (
+         <View key={node.key} style={styles._VIEW_SAFE_list_item}>
+           <Text
+             style={[modifiedInheritedStylesObj, styles.bullet_list_icon]}
+             accessible={false}>
+-            {Platform.select({
+-              android: '\u2022',
+-              ios: '\u00B7',
+-              default: '\u2022',
+-            })}
++
+           </Text>
+-          <View style={styles._VIEW_SAFE_bullet_list_content}>{children}</View>
++          <View style={styles._VIEW_SAFE_bullet_list_content}>
++            {containsNestedLists ? children : <Text>
++              {Platform.select({
++                android: '\u2022',
++                ios: '\u00B7',
++                default: '\u2022',
++              })}
++              {"  "}
++              {children}
++            </Text>}
++          </View>
+         </View>
+       );
+     }
+@@ -154,12 +179,18 @@ const renderRules = {
+       return (
+         <View key={node.key} style={styles._VIEW_SAFE_list_item}>
+           <Text style={[modifiedInheritedStylesObj, styles.ordered_list_icon]}>
+-            {listItemNumber}
+-            {node.markup}
+           </Text>
+-          <View style={styles._VIEW_SAFE_ordered_list_content}>{children}</View>
++          <View style={styles._VIEW_SAFE_ordered_list_content}>
++            {containsNestedLists ? children : <Text>
++              {listItemNumber}
++              {node.markup}
++              {"  "}
++              {children}
++            </Text>}
++          </View>
+         </View>
+       );
++
+     }
+ 
+     // we should not need this, but just in case
+@@ -178,7 +209,7 @@ const renderRules = {
+   ),
+   code_block: (node, children, parent, styles, inheritedStyles = {}) => {
+     // we trim new lines off the end of code blocks because the parser sends an extra one.
+-    let {content} = node;
++    let { content } = node;
+ 
+     if (
+       typeof node.content === 'string' &&
+@@ -195,7 +226,7 @@ const renderRules = {
+   },
+   fence: (node, children, parent, styles, inheritedStyles = {}) => {
+     // we trim new lines off the end of code blocks because the parser sends an extra one.
+-    let {content} = node;
++    let { content } = node;
+ 
+     if (
+       typeof node.content === 'string' &&
+@@ -270,7 +301,7 @@ const renderRules = {
+     allowedImageHandlers,
+     defaultImageHandler,
+   ) => {
+-    const {src, alt} = node.attributes;
++    const { src, alt } = node.attributes;
+ 
+     // we check that the source starts with at least one of the elements in allowedImageHandlers
+     const show =
+@@ -282,21 +313,17 @@ const renderRules = {
        return null;
      }
  
@@ -42,17 +154,17 @@ index 6f2ed8d..caa7426 100644
 -        uri: show === true ? src : `${defaultImageHandler}${src}`,
 -      },
 -    };
--
++    const uri = show === true ? src : `${defaultImageHandler}${src}`;
+ 
 -    if (alt) {
 -      imageProps.accessible = true;
 -      imageProps.accessibilityLabel = alt;
 -    }
-+    const uri = show === true ? src : `${defaultImageHandler}${src}`;
- 
+-
 -    return <FitImage {...imageProps} />;
 +    // Use the OriginalSizeImage component to maintain original dimensions
 +    return (
-+      <OriginalSizeImage 
++      <OriginalSizeImage
 +        key={node.key}
 +        uri={uri}
 +        alt={alt}
@@ -62,22 +174,34 @@ index 6f2ed8d..caa7426 100644
    },
  
    // Text Output
-@@ -344,4 +343,44 @@ const renderRules = {
+@@ -344,4 +371,54 @@ const renderRules = {
    ),
  };
  
 +const OriginalSizeImage = ({ uri, alt, style }) => {
++  const layoutDimensions = useMemo(() => parseImageDimensions(alt), [alt]);
 +
-+  const layoutDimensions = useMemo(() => parseImageDimensions(alt), []);
-+  
++  if (layoutDimensions.width === undefined || layoutDimensions.height === undefined) {
++    return <ActivityIndicator size={20} style={{ marginHorizontal: 10 }} />;
++  }
++
 +  const imageProps = {
-+    indicator: true,
 +    style: {
 +      ...style,
-+      width: layoutDimensions.width,  
-+      height: layoutDimensions.height, 
-+      resizeMode: 'contain', 
-+      alignSelf: 'flex-start',
++      width: layoutDimensions.width,
++      minWidth: layoutDimensions.width,
++      maxWidth: layoutDimensions.width,
++      height: layoutDimensions.height,
++      resizeMode: 'contain',
++      // Improve horizontal alignment with text
++      textAlignVertical: 'center', // Android alignment
++      //includeFontPadding: false, // Remove extra padding on Android
++      //textAlign: 'center', // Horizontal alignment
++      // Add small margins for better spacing with adjacent text
++      marginHorizontal: 2,
++      //marginTop: 5,
++      // Align with text baseline for better visual flow
++      //alignSelf: 'baseline',
 +    },
 +    source: { uri },
 +  };
@@ -87,13 +211,11 @@ index 6f2ed8d..caa7426 100644
 +    imageProps.accessibilityLabel = alt;
 +  }
 +
-+  if(layoutDimensions.width === undefined || layoutDimensions.height === undefined) {
-+    return <ActivityIndicator size={20} style = {{marginHorizontal: 10}}/>
-+  }
-+
-+  return <View style = {{width: layoutDimensions.width, height: layoutDimensions.height, marginHorizontal: 10}}>
-+            <Image {...imageProps} />
-+         </View>;
++  return <>
++    <Text> </Text>
++    <Image {...imageProps} />
++    <Text> </Text>
++  </>;
 +};
 +
 +function parseImageDimensions(imageDimensions) {
@@ -107,3 +229,14 @@ index 6f2ed8d..caa7426 100644
 +}
 +
  export default renderRules;
+\ No newline at end of file
+diff --git a/node_modules/react-native-markdown-display/src/lib/styles.js b/node_modules/react-native-markdown-display/src/lib/styles.js
+index e1b5e39..d9f7ec1 100644
+--- a/node_modules/react-native-markdown-display/src/lib/styles.js
++++ b/node_modules/react-native-markdown-display/src/lib/styles.js
+@@ -1,4 +1,4 @@
+-import {Platform} from 'react-native';
++import { Platform } from 'react-native';
+ 
+ // this is converted to a stylesheet internally at run time with StyleSheet.create(
+ export const styles = {
