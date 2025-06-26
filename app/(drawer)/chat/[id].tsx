@@ -10,8 +10,8 @@ import useLLM from "@/src/chat/hooks/useLLM";
 import { LLMMessage } from "@/src/chat/types/LLMMessage";
 import rollToBottom from '@/src/chat/utils/rollToTheBottom';
 import { conversations } from "@/src/chat/utils/storeConversations";
-import { useGetDictionayOfImagesFromManual } from "@/src/context/hooks/useParseMarkdown";
-import { ImagesDict, parseMarkdownImages } from "@/src/download/utils/markdownImagesUtils";
+import { markdownFullParse, useGetDictionayOfImagesFromManual } from "@/src/context/hooks/useParseMarkdownToHTML";
+import { ImagesDict } from "@/src/download/utils/markdownImagesUtils";
 import useThrottle from "@/src/hooks/useThrottle";
 import { useHeaderHeight } from "@react-navigation/elements";
 import { DrawerActions } from "@react-navigation/native";
@@ -184,7 +184,7 @@ function showYouCantDoThatToast(message: string = "Wait until the app finishes a
 }
 
 function parseMessageWithMarkdownImages(message: LLMMessage, imagesDict: ImagesDict) {
-    return { ...message, message: { ...message.message, content: parseMarkdownImages(message.message.content, imagesDict) } }
+    return { ...message, message: { ...message.message, content: markdownFullParse([message.message.content], imagesDict)[0] } }
 }
 
 const styles = StyleSheet.create({

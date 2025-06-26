@@ -1,7 +1,8 @@
-import { getStoredImagesDict, ImagesDict, parseMarkdownImages, storeImagesDict } from "@/src/download/utils/markdownImagesUtils"
+import { getStoredImagesDict, ImagesDict, parseImagesToHTMLTags, storeImagesDict } from "@/src/download/utils/markdownImagesUtils"
+import { marked } from "marked"
 import { useEffect, useState } from "react"
 
-export default function useParseMarkdown(ragContexts: string[]) {
+export default function useParseMarkdownToHTML(ragContexts: string[]) {
 
     const [parsedContexts, setParsedContexts] = useState<string[] | undefined>(undefined)
     const imagesDict = useGetDictionayOfImagesFromManual()
@@ -11,7 +12,7 @@ export default function useParseMarkdown(ragContexts: string[]) {
             pipeline(ragContexts)
     }, [ragContexts, imagesDict])
 
-    function pipeline(contexts: string[]) {
+    async function pipeline(contexts: string[]) {
 
         if (imagesDict === undefined)
             throw Error("Dictionay of images not loaded")
@@ -55,8 +56,8 @@ export function markdownFullParse(markdownList: string[], imagesDict: ImagesDict
     const finalParse: string[] = []
 
     for (let context of firstParse) {
-        const parsed = parseMarkdownImages(context, imagesDict)
-        finalParse.push(parsed)
+        const parsed = parseImagesToHTMLTags(context, imagesDict)
+        finalParse.push(marked.parse(parsed) as string)
     }
 
     return finalParse
@@ -64,7 +65,7 @@ export function markdownFullParse(markdownList: string[], imagesDict: ImagesDict
 
 export function parseMarkdownText(input: string): string {
     const formatted = input
-        .slice(3)
+        .replaceAll(".gif", "")
     let lines = formatted.split('\\n');
     let linesConcatenated = lines[0]
 

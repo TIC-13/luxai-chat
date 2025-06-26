@@ -81,7 +81,7 @@ export async function storeImagesDict() {
     return imagesDict
 }
 
-export const parseMarkdownImages = (markdownText: string, imagesObject: ImagesDict) => {
+export const parseImagesToHTMLTags = (markdownText: string, imagesObject: ImagesDict) => {
     
     console.log("mardown text", markdownText)
     
@@ -91,8 +91,6 @@ export const parseMarkdownImages = (markdownText: string, imagesObject: ImagesDi
     }));
 
     let newMarkdown = markdownText
-
-    console.log("Image tags", imagesTags)
 
     for (let tag of imagesTags) {
         const img = imagesObject[tag.clean]
@@ -105,13 +103,12 @@ export const parseMarkdownImages = (markdownText: string, imagesObject: ImagesDi
 
         newMarkdown = newMarkdown.replaceAll(tag.full,
             base64Image !== undefined ?
-                `![${width},${height}](${base64Image})` :
+               `<img width="${width}" height="${height}" src="${base64Image}" style="max-width=${width}px"/>` :
                 tag.clean
         )
     }
 
     return newMarkdown
-        .replaceAll(".gif", "")
 };
 
 const removeFileExtension = (filename: string) =>

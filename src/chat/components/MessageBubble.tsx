@@ -1,4 +1,4 @@
-import MyMarkdown from "@/components/Markdown";
+import HTML from "@/components/HTML";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { useRagContext } from "@/contexts/RagContext";
@@ -35,9 +35,9 @@ export default function MessageBubble({ message }: { message: LLMMessage }) {
                 message.contexts !== undefined && message.contexts.length > 0 &&
                 <ContextBubble onPress = {navigateToContextModal}/>
             }
-            <MyMarkdown>
+            <HTML>
                 {message.message.content}
-            </MyMarkdown>
+            </HTML>
         </ThemedView>
     )
 }
@@ -67,10 +67,11 @@ const styles = StyleSheet.create({
         padding: 10,
         borderRadius: 10,
         marginVertical: 5,
-        maxWidth: '80%',
+        width: '80%',
     },
     userBubble: {
-        borderBottomEndRadius: 0
+        borderBottomEndRadius: 0,
+
     },
     systemBubble: {
         borderBottomStartRadius: 0
