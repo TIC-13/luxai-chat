@@ -15,8 +15,10 @@ export default function MyHTML(props: { children: string }) {
             style={{ backgroundColor: 'transparent', width: "100%", marginBottom: 10}}
             originWhitelist={['*']}
             source={{ html: htmlParsed}}
-            //scrollEnabled={false}
-            //injectedJavaScript="document.body.style.overflow = 'hidden';"
+            scrollEnabled={false}
+            injectedJavaScript="document.body.style.overflow = 'hidden';"
+            javaScriptEnabled={true}
+            injectedJavaScriptBeforeContentLoaded="document.body.style.overflow = 'hidden';"
             onSizeUpdated={size => console.log(size.height)}
         />
     )
@@ -43,32 +45,14 @@ function parseHTMLToDocument(html: string, textColor: string) {
             padding: 20px;
             color: #333;
         }
-        
-        h1 {
-            color: #2c3e50;
-            border-bottom: 2px solid #3498db;
-            padding-bottom: 10px;
-            font-size: clamp(20px, 4vw, 32px);
-            word-wrap: break-word;
-        }
-        
-        ol {
-            padding-left: 20px;
-        }
-        
-        li {
-            margin-bottom: 8px;
-            font-size: clamp(16px, 2.5vw, 18px);
-            word-wrap: break-word;
-        }
-        
+
         p {
             margin-bottom: 10px;
             font-size: clamp(18px, 4vw, 24px);
             word-wrap: break-word;
             overflow-wrap: break-word;
         }
-        
+
         /* Tablet styles */
         @media screen and (max-width: 768px) {
             body {
@@ -80,9 +64,6 @@ function parseHTMLToDocument(html: string, textColor: string) {
                 font-size: clamp(18px, 5vw, 28px);
             }
             
-            ol {
-                padding-left: 15px;
-            }
         }
         
         /* Mobile styles */
@@ -97,7 +78,7 @@ function parseHTMLToDocument(html: string, textColor: string) {
             }
             
             li {
-                font-size: clamp(14px, 4vw, 16px);
+                font-size: clamp(16px, 5vw, 20px);
                 margin-bottom: 6px;
             }
             
@@ -106,14 +87,11 @@ function parseHTMLToDocument(html: string, textColor: string) {
                 margin-bottom: 8px;
             }
             
-            ol {
-                padding-left: 10px;
-            }
         }
     </style>
 </head>
 <body>
-    <p>${html}</p>
+    ${html}
 </body>
 </html>`
 }

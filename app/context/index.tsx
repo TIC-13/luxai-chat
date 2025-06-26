@@ -3,7 +3,8 @@ import LoadingScreen from "@/components/LoadingScreen";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { useRagContext } from "@/contexts/RagContext";
-import useParseMarkdown from "@/src/context/hooks/useParseMarkdown";
+import useParseMarkdownToHTML from "@/src/context/hooks/useParseMarkdownToHTML";
+import { useMemo } from "react";
 import { StyleSheet, View } from "react-native";
 import Animated from "react-native-reanimated";
 
@@ -11,7 +12,9 @@ export default function ContextModal() {
 
     const { ragContexts } = useRagContext()
 
-    const parsedMarkdown = useParseMarkdown(ragContexts)
+    const parsedContexts = useMemo(() => ragContexts.map(context => context.slice(3)), [ragContexts])
+
+    const parsedMarkdown = useParseMarkdownToHTML(parsedContexts)
 
     if (parsedMarkdown === undefined)
         return <LoadingScreen />

@@ -36,6 +36,7 @@
     "expo-system-ui": "~5.0.7",
     "expo-web-browser": "~14.1.6",
     "llama.rn": "^0.5.10",
+    "marked": "^15.0.12",
     "patch-package": "^8.0.0",
     "postinstall-postinstall": "^2.1.0",
     "react": "19.0.0",
