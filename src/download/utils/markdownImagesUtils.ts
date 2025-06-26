@@ -105,13 +105,12 @@ export const parseMarkdownImages = (markdownText: string, imagesObject: ImagesDi
 
         newMarkdown = newMarkdown.replaceAll(tag.full,
             base64Image !== undefined ?
-                `![${width},${height}](${base64Image})` :
+               `<span><img width="${width}" height="${height}" src="${base64Image}" style="max-width=${width}px"/></span>` :
                 tag.clean
         )
     }
 
     return newMarkdown
-        .replaceAll(".gif", "")
 };
 
 const removeFileExtension = (filename: string) =>

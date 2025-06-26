@@ -1,5 +1,5 @@
+import HTML from "@/components/HTML";
 import LoadingScreen from "@/components/LoadingScreen";
-import MyMarkdown from "@/components/Markdown";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { useRagContext } from "@/contexts/RagContext";
@@ -29,9 +29,9 @@ export default function ContextModal() {
                                 >
                                     {`Context ${index + 1}`}
                                 </ThemedText>
-                                <MyMarkdown>
+                                <HTML>
                                     {markdown}
-                                </MyMarkdown>
+                                </HTML>
                             </View>
                         )
                     })
