@@ -2,7 +2,7 @@ import { AppVersion } from "@/app.config";
 import { HeaderIcon, HeaderIconContainer } from "@/components/chat/components/HeaderIcon";
 import { KeyboardSpacer } from "@/components/KeyboardSpacer";
 import LoadingScreen from "@/components/LoadingScreen";
-import { ModalBackdrop, ModalButton, ModalButtonContainer, ModalContainer, ModalFooter, ModalHeader, ModalText, ModalTitle, MyModal } from "@/components/Modal";
+import { ModalBackdrop, ModalButton, ModalButtonContainer, ModalContainer, ModalFooter, ModalHeader, ModalText, ModalTitle, MyModal, PickerIcon, PickerOption, PickerText } from "@/components/Modal";
 import { ThemedSafeAreaView } from "@/components/ThemedSafeAreaView";
 import MessageBubble from "@/src/chat/components/MessageBubble";
 import MessageInputField from "@/src/chat/components/MessageInputField";
@@ -40,7 +40,8 @@ export default function ChatLayout() {
 
     const throttledCantDoActionToast = useThrottle(showYouCantDoThatToast, 0)
 
-    const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+    const [deleteModalVisible, setDeleteModalVisible] = useState(false)
+    const [pickerModalVisible, setPickerModalVisible] = useState(false)
 
     const canSend = !isUnableToSend
     const chatExists = messages.length > 0
@@ -88,6 +89,7 @@ export default function ChatLayout() {
                 </View>
                 <KeyboardSpacer/>
                 <DeleteConversationModal />
+                <PickerModal />
             </View>
             <Drawer.Screen
                 options={{
@@ -119,10 +121,10 @@ export default function ChatLayout() {
                             </HeaderIconContainer>
 
                             <HeaderIconContainer
-                                onPress={chatExists ? headerIconCallback(() => setDeleteModalVisible(true)): () => null}
+                                onPress={chatExists ? headerIconCallback(() => setPickerModalVisible(true)): () => null}
                             >
                                 <HeaderIcon
-                                    name="trash-can"
+                                    name="dots-vertical"
                                     active={canSend && chatExists}
                                 />
                             </HeaderIconContainer>
@@ -133,10 +135,34 @@ export default function ChatLayout() {
         </ThemedSafeAreaView >
     )
 
+    function PickerModal() {
+        return (
+            <MyModal
+                onRequestClose={() => setPickerModalVisible(false)} 
+                visible={pickerModalVisible}
+            >
+                <ModalBackdrop onPress={() => setPickerModalVisible(false)}>
+                    <ModalContainer style = {{padding: 0}}>
+                        <PickerOption onPress={() => {
+                            setPickerModalVisible(false)
+                            setDeleteModalVisible(true)
+                        }}>
+                            <PickerIcon name="trash-can"/>
+                            <PickerText>Delete conversation</PickerText>
+                        </PickerOption>
+                    </ModalContainer>                    
+                </ModalBackdrop>
+            </MyModal>
+        )
+    }
+
     function DeleteConversationModal() {
         return (
-            <MyModal visible={deleteModalVisible}>
-                <ModalBackdrop>
+            <MyModal
+                onRequestClose={() => setDeleteModalVisible(false)} 
+                visible={deleteModalVisible}
+            >
+                <ModalBackdrop onPress={() => setDeleteModalVisible(false)}>
                     <ModalContainer>
                         <ModalHeader>
                             <ModalTitle>Delete conversation</ModalTitle>

@@ -70,6 +70,8 @@ export const Colors = {
 
     drawerItemBackground: '#F5F5F5',
 
+    separator: "#E5E5E5"
+
   },
   dark: {
     text: '#ECEDEE',
@@ -136,6 +138,8 @@ export const Colors = {
     modalCloseButtonIcon: '#9BA1A6',
 
     drawerItemBackground: '#1F2937',
+
+    separator: '#404040'
 
   },
 };

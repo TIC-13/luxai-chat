@@ -73,8 +73,5 @@ export function parseMarkdownText(input: string): string {
         linesConcatenated += `\n${line.trim()}`
     })
 
-    console.log("ORIGINAL", input)
-    console.log('PARSED', linesConcatenated)
-
     return linesConcatenated;
 }

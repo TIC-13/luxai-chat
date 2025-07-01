@@ -76,6 +76,8 @@ export const MotorolaColors = {
     motorolaAccent: '#FF6B35',
     motorolaGray: '#6B7280',
     motorolaLightGray: '#F3F4F6',
+
+    separator: "#E5E5E5"
   },
   dark: {
     text: '#F9FAFB',
@@ -150,5 +152,7 @@ export const MotorolaColors = {
     motorolaAccent: '#FF8A65',
     motorolaGray: '#9CA3AF',
     motorolaLightGray: '#374151',
+
+    separator: '#404040'
   },
 };

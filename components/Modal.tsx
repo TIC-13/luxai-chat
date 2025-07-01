@@ -1,10 +1,12 @@
 import { useThemeColor } from "@/hooks/useThemeColor";
-import React from "react";
-import { Modal, ModalProps, Pressable, StyleSheet, Text, TextProps, View, ViewProps } from "react-native";
-import { PressableProps } from "react-native-gesture-handler";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import React, { ComponentProps } from "react";
+import { Dimensions, Modal, ModalProps, Pressable, PressableProps, StyleSheet, Text, TextProps, View, ViewProps, ViewStyle } from "react-native";
 
-interface ModalBackdropProps extends ViewProps {
+const {width, height} = Dimensions.get("window")
+interface ModalBackdropProps extends PressableProps {
     children: React.ReactNode;
+    style?: ViewStyle
 }
 
 interface ModalButtonProps extends PressableProps {
@@ -32,12 +34,12 @@ export function MyModal(props: ModalProps) {
 
 export function ModalBackdrop(props: ModalBackdropProps) {
     return (
-        <View
+        <Pressable
             {...props}
             style={[styles.modalBackdrop, props.style]}
         >
             {props.children}
-        </View>
+        </Pressable>
     )
 }
 
@@ -185,6 +187,42 @@ export function ModalButton(props: ModalButtonProps) {
     );
 }
 
+export function PickerOption(props: PressableProps & { style?: ViewStyle }) {
+    
+    return (
+        <Pressable
+            android_ripple={{color: "#F5F5F5"}}
+            {...props}
+            style = {[styles.pickerOption, props.style]}
+        />
+    )
+}
+
+export function PickerText(props: TextProps) {
+
+    const textColor = useThemeColor('text')
+
+    return <Text {...props} style = {[{color: textColor}, props.style]}/>
+}
+
+export function PickerIcon(props: ComponentProps<typeof MaterialCommunityIcons>) {
+    
+    const textColor = useThemeColor('text')
+
+    return (
+        <MaterialCommunityIcons size={20} color = {textColor} {...props} />
+    )
+}
+
+export function ModalSeparator(props: ViewProps) {
+
+    const color = useThemeColor('separator')
+
+    return (
+        <View {...props} style = {[styles.separator, {backgroundColor: color}, props.style]}/>
+    )
+}
+
 const styles = StyleSheet.create({
     modalBackdrop: {
         flex: 1,
@@ -263,5 +301,18 @@ const styles = StyleSheet.create({
         fontWeight: '600',
         textAlign: 'center',
         fontSize: 16,
+    },
+    pickerOption: {
+        width: width*0.6,
+        height: 60,
+        //backgroundColor: 'red',
+        flexDirection: 'row',
+        columnGap: 10,
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+    separator: {
+        height: 1,
+        width: width*0.55,
     }
 });
