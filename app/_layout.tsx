@@ -84,7 +84,8 @@ function useToastConfig() {
       <BaseToast
         {...props}
         style={{
-          backgroundColor: toastBackground
+          backgroundColor: toastBackground,
+          borderLeftColor: "green"
         }}
         text1Style={{
           color: toastTitle,

@@ -9,9 +9,10 @@ interface ModalBackdropProps extends PressableProps {
     style?: ViewStyle
 }
 
-interface ModalButtonProps extends PressableProps {
+export interface ModalButtonProps extends PressableProps {
     variant?: 'primary' | 'secondary' | 'danger';
     title: string;
+    style?: ViewStyle
 }
 
 interface ModalHeaderProps extends ViewProps {
@@ -21,6 +22,12 @@ interface ModalHeaderProps extends ViewProps {
 interface ModalFooterProps extends ViewProps {
     children: React.ReactNode;
 }
+
+export type PickerIconProps = ComponentProps<typeof MaterialCommunityIcons>
+
+export type PickerTextProps = TextProps
+
+export type PickerOptionProps = PressableProps & { style?: ViewStyle }
 
 export function MyModal(props: ModalProps) {
     return (
@@ -187,7 +194,7 @@ export function ModalButton(props: ModalButtonProps) {
     );
 }
 
-export function PickerOption(props: PressableProps & { style?: ViewStyle }) {
+export function PickerOption(props: PickerOptionProps) {
     
     return (
         <Pressable
@@ -198,14 +205,14 @@ export function PickerOption(props: PressableProps & { style?: ViewStyle }) {
     )
 }
 
-export function PickerText(props: TextProps) {
+export function PickerText(props: PickerTextProps) {
 
     const textColor = useThemeColor('text')
 
     return <Text {...props} style = {[{color: textColor}, props.style]}/>
 }
 
-export function PickerIcon(props: ComponentProps<typeof MaterialCommunityIcons>) {
+export function PickerIcon(props: PickerIconProps) {
     
     const textColor = useThemeColor('text')
 

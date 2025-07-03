@@ -2,8 +2,11 @@ import { AppVersion } from "@/app.config";
 import { HeaderIcon, HeaderIconContainer } from "@/components/chat/components/HeaderIcon";
 import { KeyboardSpacer } from "@/components/KeyboardSpacer";
 import LoadingScreen from "@/components/LoadingScreen";
-import { ModalBackdrop, ModalButton, ModalButtonContainer, ModalContainer, ModalFooter, ModalHeader, ModalText, ModalTitle, MyModal, PickerIcon, PickerOption, PickerText } from "@/components/Modal";
+import { ModalBackdrop, ModalContainer, ModalSeparator, MyModal, PickerIcon, PickerOption, PickerText } from "@/components/Modal";
 import { ThemedSafeAreaView } from "@/components/ThemedSafeAreaView";
+import ChoiceModal from "@/components/ui/modal/ChoiceModal";
+import OverlayedLoadingScreen from "@/components/ui/OverlayedLoadingScreen";
+import usePost from "@/hooks/usePost";
 import MessageBubble from "@/src/chat/components/MessageBubble";
 import MessageInputField from "@/src/chat/components/MessageInputField";
 import useLLM from "@/src/chat/hooks/useLLM";
@@ -22,6 +25,24 @@ import { Platform, StyleSheet, ToastAndroid, View } from "react-native";
 import Animated from "react-native-reanimated";
 import Toast from "react-native-toast-message";
 import { startNewChat } from "../../(download)";
+
+interface Report {
+    id: number;
+    content: string;
+    createdAt: string;
+    updatedAt: string;
+}
+
+interface CreateReportParams {
+    content: string;
+}
+
+interface ApiResponse<T> {
+    success: boolean;
+    data?: T;
+    message?: string;
+    error?: string;
+}
 
 export default function ChatLayout() {
 
@@ -42,6 +63,26 @@ export default function ChatLayout() {
 
     const [deleteModalVisible, setDeleteModalVisible] = useState(false)
     const [pickerModalVisible, setPickerModalVisible] = useState(false)
+    const [reportModalVisible, setReportModalVisible] = useState(false)
+
+    const {
+        execute: sendReport,
+        isLoading: isSendingReport,
+    } = usePost<ApiResponse<Report>, CreateReportParams>(
+        `${process.env.EXPO_PUBLIC_API_URL}/reports`,
+        {
+            onSuccess: (response, params) => {
+                console.log('Report created successfully:', response.data);
+                console.log('Original content:', params.content);
+                Toast.show({ type: "success", text1: "Report sent", text2: "Report sent successfully" })
+            },
+            onError: (error, params) => {
+                console.error('Failed to create report:', error.message);
+                console.error('Content that failed:', params.content);
+                Toast.show({ type: "error", text1: "Error reporting", text2: "Error sending report" })
+            }
+        }
+    )
 
     const canSend = !isUnableToSend
     const chatExists = messages.length > 0
@@ -54,10 +95,10 @@ export default function ChatLayout() {
 
     return (
         <ThemedSafeAreaView style={{ flex: 1 }}>
+            <OverlayedLoadingScreen isVisible={isSendingReport} />
             <View
                 style={styles.mainContainer}
             >
-
                 <Animated.ScrollView
                     ref={scrollViewRef}
                     style={styles.bubblesContainer}
@@ -87,8 +128,9 @@ export default function ChatLayout() {
                         onPress={() => rollToBottom(scrollViewRef)}
                     />
                 </View>
-                <KeyboardSpacer/>
+                <KeyboardSpacer />
                 <DeleteConversationModal />
+                <ReportConversationModal />
                 <PickerModal />
             </View>
             <Drawer.Screen
@@ -98,8 +140,8 @@ export default function ChatLayout() {
                         <HeaderIconContainer
                             onPress={
                                 headerIconCallback(() => navigation.dispatch(DrawerActions.openDrawer()),
-                                "Wait until the app finishes answering"
-                            )}
+                                    "Wait until the app finishes answering"
+                                )}
                         >
                             <HeaderIcon
                                 name="menu"
@@ -112,7 +154,7 @@ export default function ChatLayout() {
                         <View style={{ flexDirection: 'row', height: "100%" }}>
 
                             <HeaderIconContainer
-                                onPress={chatExists? headerIconCallback(startNewChat): () => null}
+                                onPress={chatExists ? headerIconCallback(startNewChat) : () => null}
                             >
                                 <HeaderIcon
                                     name="plus"
@@ -121,7 +163,7 @@ export default function ChatLayout() {
                             </HeaderIconContainer>
 
                             <HeaderIconContainer
-                                onPress={chatExists ? headerIconCallback(() => setPickerModalVisible(true)): () => null}
+                                onPress={chatExists ? headerIconCallback(() => setPickerModalVisible(true)) : () => null}
                             >
                                 <HeaderIcon
                                     name="dots-vertical"
@@ -138,19 +180,32 @@ export default function ChatLayout() {
     function PickerModal() {
         return (
             <MyModal
-                onRequestClose={() => setPickerModalVisible(false)} 
+                onRequestClose={() => setPickerModalVisible(false)}
                 visible={pickerModalVisible}
             >
                 <ModalBackdrop onPress={() => setPickerModalVisible(false)}>
-                    <ModalContainer style = {{padding: 0}}>
+                    <ModalContainer style={{ padding: 0 }}>
                         <PickerOption onPress={() => {
                             setPickerModalVisible(false)
                             setDeleteModalVisible(true)
                         }}>
-                            <PickerIcon name="trash-can"/>
+                            <PickerIcon name="trash-can" />
                             <PickerText>Delete conversation</PickerText>
                         </PickerOption>
-                    </ModalContainer>                    
+                        {
+                            process.env.EXPO_PUBLIC_API_URL !== undefined &&
+                            <>
+                                <ModalSeparator />
+                                <PickerOption onPress={() => {
+                                    setPickerModalVisible(false)
+                                    setReportModalVisible(true)
+                                }}>
+                                    <PickerIcon name="alert" />
+                                    <PickerText>Report conversation</PickerText>
+                                </PickerOption>
+                            </>
+                        }
+                    </ModalContainer>
                 </ModalBackdrop>
             </MyModal>
         )
@@ -158,41 +213,42 @@ export default function ChatLayout() {
 
     function DeleteConversationModal() {
         return (
-            <MyModal
-                onRequestClose={() => setDeleteModalVisible(false)} 
-                visible={deleteModalVisible}
-            >
-                <ModalBackdrop onPress={() => setDeleteModalVisible(false)}>
-                    <ModalContainer>
-                        <ModalHeader>
-                            <ModalTitle>Delete conversation</ModalTitle>
-                        </ModalHeader>
+            <ChoiceModal
+                title="Delete conversation"
+                content="Are you sure you want to delete this conversation?"
+                isVisible={deleteModalVisible}
+                close={() => setDeleteModalVisible(false)}
+                buttonsProps={[
+                    {
+                        variant: "danger",
+                        title: "Delete",
+                        onPress: () => {
+                            startNewChat()
+                            conversations.remove(id)
+                        }
+                    }
+                ]}
+            />
+        )
+    }
 
-                        <ModalText>
-                            Are you sure you want to delete this conversation?
-                        </ModalText>
-
-                        <ModalFooter>
-                            <ModalButtonContainer>
-                                <ModalButton
-                                    variant="secondary"
-                                    title="Cancel"
-                                    onPress={() => setDeleteModalVisible(false)}
-                                />
-                                <ModalButton
-                                    variant="danger"
-                                    title="Delete"
-                                    onPress={() => {
-                                        startNewChat()
-                                        conversations.remove(id)
-                                        setDeleteModalVisible(false)
-                                    }}
-                                />
-                            </ModalButtonContainer>
-                        </ModalFooter>
-                    </ModalContainer>
-                </ModalBackdrop>
-            </MyModal>
+    function ReportConversationModal() {
+        return (
+            <ChoiceModal
+                title="Report conversation"
+                content="Are you sure you want to report this conversation?"
+                isVisible={reportModalVisible}
+                close={() => setReportModalVisible(false)}
+                buttonsProps={[
+                    {
+                        variant: "danger",
+                        title: "Report",
+                        onPress: () => {
+                            sendReport({ content: getConversationString(messages) })
+                        }
+                    }
+                ]}
+            />
         )
     }
 }
@@ -211,6 +267,15 @@ function showYouCantDoThatToast(message: string = "Wait until the app finishes a
 
 function parseMessageWithMarkdownImages(message: LLMMessage, imagesDict: ImagesDict) {
     return { ...message, message: { ...message.message, content: markdownFullParse([message.message.content], imagesDict)[0] } }
+}
+
+function getConversationString(messages: LLMMessage[]) {
+    let finalString = ""
+    for (let { message } of messages) {
+        const { role, content } = message
+        finalString += `<${role}>${content}</${role}>`
+    }
+    return finalString
 }
 
 const styles = StyleSheet.create({
