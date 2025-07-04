@@ -8,11 +8,11 @@ const MODEL_NAME = "qwen2.5-1.5b-instruct-q8_0.gguf"
 const RAG_MODEL_LINK = "https://huggingface.co/BAAI/bge-small-en-v1.5/resolve/main/onnx/model.onnx"
 const RAG_MODEL_NAME = "model.onnx"
 
-const TOKENIZER_LINK = "https://drive.google.com/uc?export=download&id=1j4maCOisPUe8jUqqS0UfibLwkAZ5JxYO"
-const TOKENIZER_NAME = "tokenizer.json"
+const TOKENIZER_LINK = "https://huggingface.co/BAAI/bge-small-en-v1.5/resolve/main/tokenizer.json"
+const TOKENIZER_NAME = "tokenizer_bge_small.json"
 
-const EMBEDDINGS_LINK = "https://drive.google.com/uc?export=download&id=1Ir5rB52ShrmPMVGCDsyo-VLHIjN2ga0P"
-const EMBEDDINGS_NAME = "embeddings.csv"
+const EMBEDDINGS_LINK = "https://drive.google.com/uc?export=download&id=14dhOGkNw1PR1SbbOHY7sPtQ6IhxmxWMb"
+const EMBEDDINGS_NAME = "embeddings_old.csv"
 
 const CHUNKS_LINK = "https://drive.google.com/uc?export=download&id=15tFvn0YYJcr1QDeefG8ODk-jaMigu4Bh"
 const CHUNKS_NAME = "chunks.txt"
