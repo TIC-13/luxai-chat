@@ -74,6 +74,11 @@ The app automatically downloads required AI models at runtime. No additional con
 
 You can switch the LLM and RAG files, including the database, by editing constants like `MODEL_LINK`, `MODEL_NAME` `RAG_MODEL_LINK` and `RAG_MODEL_NAME` on `constants/Files.ts`
 
+## Hosting the backend
+
+This app includes a [backend](https://github.com/TIC-13/rag-chat-backend) that is currently used only to optionally store user conversation reports.
+When deploying an instance of the app, the backend is optional. If you choose to host it, create a `.env` file and set the `EXPO_PUBLIC_API_URL` environment variable to the URL of your hosted server instance.
+
 ## 📝 Usage
 
 1. Launch the app on your Android device
