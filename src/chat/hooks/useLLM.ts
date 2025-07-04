@@ -1,4 +1,4 @@
-import { CHUNKS_PATH, EMBEDDINGS_PATH, MODEL_COMPLET_PATH, RAG_MODEL_PATH, RERANKER_FILE_PATH, RERANKER_TOKENIZER_PATH, TOKENIZER_PATH } from '@/constants/Files';
+import { CHUNKS_PATH, EMBEDDINGS_PATH, MODEL_COMPLET_PATH, RAG_MODEL_PATH, TOKENIZER_PATH } from '@/constants/Files';
 import { LLMMessage } from '@/src/chat/types/LLMMessage';
 import Rag from '@/src/chat/utils/rag';
 import { initLlama, LlamaContext, RNLlamaOAICompatibleMessage } from "llama.rn";
@@ -156,8 +156,8 @@ async function loadRAG() {
         TOKENIZER_PATH,
         EMBEDDINGS_PATH,
         CHUNKS_PATH,
-        RERANKER_TOKENIZER_PATH,
-        RERANKER_FILE_PATH
+        //RERANKER_TOKENIZER_PATH,
+        //RERANKER_FILE_PATH
     )
 }
 

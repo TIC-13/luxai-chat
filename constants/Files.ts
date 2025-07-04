@@ -11,11 +11,11 @@ const RAG_MODEL_NAME = "model.onnx"
 const TOKENIZER_LINK = "https://huggingface.co/BAAI/bge-small-en-v1.5/resolve/main/tokenizer.json"
 const TOKENIZER_NAME = "tokenizer_bge_small.json"
 
-const EMBEDDINGS_LINK = "https://drive.google.com/uc?export=download&id=14dhOGkNw1PR1SbbOHY7sPtQ6IhxmxWMb"
-const EMBEDDINGS_NAME = "embeddings_old.csv"
+const EMBEDDINGS_LINK = "https://drive.google.com/uc?export=download&id=18GMVf9HJbP0AWdvdbtNoOA19Rm2jE1-M"
+const EMBEDDINGS_NAME = "embeddings_razr_40.csv"
 
-const CHUNKS_LINK = "https://drive.google.com/uc?export=download&id=15tFvn0YYJcr1QDeefG8ODk-jaMigu4Bh"
-const CHUNKS_NAME = "chunks.txt"
+const CHUNKS_LINK = "https://drive.google.com/uc?export=download&id=1FsnquEwAX5nkjIDXiui0GaNzc0Qel42n"
+const CHUNKS_NAME = "chunks_razr_40.txt"
 
 const RERANKER_FILE_LINK = "https://huggingface.co/mixedbread-ai/mxbai-rerank-xsmall-v1/resolve/main/onnx/model.onnx"
 const RERANKER_FILE_NAME = "mxbai-reranker-xsmall.onnx"
