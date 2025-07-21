@@ -65,6 +65,7 @@ export default {
         {
           android: {
             minSdkVersion: 26,
+            usesCleartextTraffic: true
           },
         },
       ],
