@@ -2,7 +2,6 @@ import { AppVersion } from "@/app.config";
 import { HeaderIcon, HeaderIconContainer } from "@/components/chat/components/HeaderIcon";
 import { KeyboardSpacer } from "@/components/KeyboardSpacer";
 import LoadingScreen from "@/components/LoadingScreen";
-import { ModalBackdrop, ModalContainer, ModalSeparator, MyModal, PickerIcon, PickerOption, PickerText } from "@/components/Modal";
 import { ThemedSafeAreaView } from "@/components/ThemedSafeAreaView";
 import ChoiceModal from "@/components/ui/modal/ChoiceModal";
 import OverlayedLoadingScreen from "@/components/ui/OverlayedLoadingScreen";
@@ -62,7 +61,6 @@ export default function ChatLayout() {
     const throttledCantDoActionToast = useThrottle(showYouCantDoThatToast, 0)
 
     const [deleteModalVisible, setDeleteModalVisible] = useState(false)
-    const [pickerModalVisible, setPickerModalVisible] = useState(false)
     const [reportModalVisible, setReportModalVisible] = useState(false)
 
     const {
@@ -131,27 +129,23 @@ export default function ChatLayout() {
                 <KeyboardSpacer />
                 <DeleteConversationModal />
                 <ReportConversationModal />
-                <PickerModal />
             </View>
             <Drawer.Screen
                 options={{
                     headerTitle: AppVersion.name,
-                    headerLeft: () => (
-                        <HeaderIconContainer
-                            onPress={
-                                headerIconCallback(() => navigation.dispatch(DrawerActions.openDrawer()),
-                                    "Wait until the app finishes answering"
-                                )}
-                        >
-                            <HeaderIcon
-                                name="menu"
-                                active={canSend}
-                            />
-                        </HeaderIconContainer>
-                    ),
-
-                    headerRight: () =>
+                    headerLeft: () =>
                         <View style={{ flexDirection: 'row', height: "100%" }}>
+                            <HeaderIconContainer
+                                onPress={
+                                    headerIconCallback(() => navigation.dispatch(DrawerActions.openDrawer()),
+                                        "Wait until the app finishes answering"
+                                    )}
+                            >
+                                <HeaderIcon
+                                    name="menu"
+                                    active={canSend}
+                                />
+                            </HeaderIconContainer>
 
                             <HeaderIconContainer
                                 onPress={chatExists ? headerIconCallback(startNewChat) : () => null}
@@ -162,11 +156,28 @@ export default function ChatLayout() {
                                 />
                             </HeaderIconContainer>
 
+
+                        </View>,
+
+                    headerRight: () =>
+                        <View style={{ flexDirection: 'row', height: "100%" }}>
+                            
+                            
                             <HeaderIconContainer
-                                onPress={chatExists ? headerIconCallback(() => setPickerModalVisible(true)) : () => null}
+                                onPress={chatExists ? headerIconCallback(() => setDeleteModalVisible(true)) : () => null}
                             >
                                 <HeaderIcon
-                                    name="dots-vertical"
+                                    name="trash-can"
+                                    active={canSend && chatExists}
+                                />
+                            </HeaderIconContainer>
+
+
+                            <HeaderIconContainer
+                                onPress={chatExists ? headerIconCallback(() => setReportModalVisible(true)) : () => null}
+                            >
+                                <HeaderIcon
+                                    name="alert"
                                     active={canSend && chatExists}
                                 />
                             </HeaderIconContainer>
@@ -176,40 +187,6 @@ export default function ChatLayout() {
             />
         </ThemedSafeAreaView >
     )
-
-    function PickerModal() {
-        return (
-            <MyModal
-                onRequestClose={() => setPickerModalVisible(false)}
-                visible={pickerModalVisible}
-            >
-                <ModalBackdrop onPress={() => setPickerModalVisible(false)}>
-                    <ModalContainer style={{ padding: 0 }}>
-                        <PickerOption onPress={() => {
-                            setPickerModalVisible(false)
-                            setDeleteModalVisible(true)
-                        }}>
-                            <PickerIcon name="trash-can" />
-                            <PickerText>Delete conversation</PickerText>
-                        </PickerOption>
-                        {
-                            process.env.EXPO_PUBLIC_API_URL !== undefined &&
-                            <>
-                                <ModalSeparator />
-                                <PickerOption onPress={() => {
-                                    setPickerModalVisible(false)
-                                    setReportModalVisible(true)
-                                }}>
-                                    <PickerIcon name="alert" />
-                                    <PickerText>Report conversation</PickerText>
-                                </PickerOption>
-                            </>
-                        }
-                    </ModalContainer>
-                </ModalBackdrop>
-            </MyModal>
-        )
-    }
 
     function DeleteConversationModal() {
         return (
