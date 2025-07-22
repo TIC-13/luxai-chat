@@ -79,6 +79,11 @@ You can switch the LLM and RAG files, including the database, by editing constan
 This app includes a [backend](https://github.com/TIC-13/rag-chat-backend) that is currently used only to optionally store user conversation reports.
 When deploying an instance of the app, the backend is optional. If you choose to host it, create a `.env` file and set the `EXPO_PUBLIC_API_URL` environment variable to the URL of your hosted server instance.
 
+## Motorola theme
+
+This app supports a Motorola theme that changes the app's name, icon, and colors to match the Motorola brand.
+To activate it, set the environment variable `EXPO_PUBLIC_APP` to `RAZR_40`.
+
 ## 📝 Usage
 
 1. Launch the app on your Android device
