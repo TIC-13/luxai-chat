@@ -22,7 +22,7 @@ import { useLocalSearchParams, useNavigation } from "expo-router";
 import Drawer from "expo-router/drawer";
 import { useRef, useState } from "react";
 import { Platform, StyleSheet, Text, TextProps, ToastAndroid, View } from "react-native";
-import Animated from "react-native-reanimated";
+import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import Toast from "react-native-toast-message";
 import { startNewChat } from "../../(download)";
 
@@ -246,11 +246,15 @@ function ChatWarnings() {
     }
 
     return (
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', width: '80%', rowGap: 15 }}>
+        <Animated.View 
+            entering={FadeIn}
+            exiting={FadeOut}
+            style={{ flex: 1, justifyContent: 'center', alignItems: 'center', width: '80%', rowGap: 15 }}
+        >
             <View style = {{height: 50}}/>
             <SubtleText>LLM responses may contain errors, so it's wise to verify them.</SubtleText>
             <SubtleText>LLM inference on less powerful mobile devices can lead to slowdowns and freezes.</SubtleText>
-        </View>
+        </Animated.View>
     )
 }
 
