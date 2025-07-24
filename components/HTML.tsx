@@ -48,7 +48,7 @@ function parseHTMLToDocument(html: string, textColor: string) {
 
         p {
             margin-bottom: 10px;
-            font-size: clamp(18px, 4vw, 24px);
+            font-size: 16px;
             word-wrap: break-word;
             overflow-wrap: break-word;
         }
@@ -61,7 +61,7 @@ function parseHTMLToDocument(html: string, textColor: string) {
             }
             
             h1 {
-                font-size: clamp(18px, 5vw, 28px);
+                font-size: 24px;
             }
             
         }
@@ -73,17 +73,17 @@ function parseHTMLToDocument(html: string, textColor: string) {
             }
             
             h1 {
-                font-size: clamp(16px, 6vw, 24px);
+                font-size: font-size: 24px;
                 padding-bottom: 8px;
             }
             
             li {
-                font-size: clamp(16px, 5vw, 20px);
+                font-size: 16px;
                 margin-bottom: 6px;
             }
             
             p {
-                font-size: clamp(16px, 5vw, 20px);
+                font-size: 16px;
                 margin-bottom: 8px;
             }
             
