@@ -6,6 +6,7 @@ import { ThemedSafeAreaView } from "@/components/ThemedSafeAreaView";
 import ChoiceModal from "@/components/ui/modal/ChoiceModal";
 import OverlayedLoadingScreen from "@/components/ui/OverlayedLoadingScreen";
 import usePost from "@/hooks/usePost";
+import { useThemeColor } from "@/hooks/useThemeColor";
 import MessageBubble from "@/src/chat/components/MessageBubble";
 import MessageInputField from "@/src/chat/components/MessageInputField";
 import useLLM from "@/src/chat/hooks/useLLM";
@@ -20,7 +21,7 @@ import { DrawerActions } from "@react-navigation/native";
 import { useLocalSearchParams, useNavigation } from "expo-router";
 import Drawer from "expo-router/drawer";
 import { useRef, useState } from "react";
-import { Platform, StyleSheet, ToastAndroid, View } from "react-native";
+import { Platform, StyleSheet, Text, TextProps, ToastAndroid, View } from "react-native";
 import Animated from "react-native-reanimated";
 import Toast from "react-native-toast-message";
 import { startNewChat } from "../../(download)";
@@ -97,26 +98,32 @@ export default function ChatLayout() {
             <View
                 style={styles.mainContainer}
             >
-                <Animated.ScrollView
-                    ref={scrollViewRef}
-                    style={styles.bubblesContainer}
-                >
-                    <View style={{ height: headerHeight }} />
-                    {
-                        messages.map((message, index) => (
-                            <View
-                                key={index}
-                                style={[
-                                    styles.bubbleContainer,
-                                    message.message.role === 'user' ? styles.userBubbleContainer : styles.systemBubbleContainer
-                                ]}
-                            >
-                                <MessageBubble key={index} message={parseMessageWithMarkdownImages(message, imagesDict)} />
-                            </View>
-                        ))
-                    }
-                    <View style={{ height: 15 }} />
-                </Animated.ScrollView>
+
+                {
+                    chatExists ?
+                        <Animated.ScrollView
+                            ref={scrollViewRef}
+                            style={styles.bubblesContainer}
+                        >
+                            <View style={{ height: headerHeight }} />
+                            {
+                                messages.map((message, index) => (
+                                    <View
+                                        key={index}
+                                        style={[
+                                            styles.bubbleContainer,
+                                            message.message.role === 'user' ? styles.userBubbleContainer : styles.systemBubbleContainer
+                                        ]}
+                                    >
+                                        <MessageBubble key={index} message={parseMessageWithMarkdownImages(message, imagesDict)} />
+                                    </View>
+                                ))
+                            }
+                            <View style={{ height: 15 }} />
+                        </Animated.ScrollView> :
+
+                        <ChatWarnings />
+                }
                 <View style={styles.messageInputContainer}>
                     <MessageInputField
                         isLoading={isUnableToSend}
@@ -161,8 +168,8 @@ export default function ChatLayout() {
 
                     headerRight: () =>
                         <View style={{ flexDirection: 'row', height: "100%" }}>
-                            
-                            
+
+
                             <HeaderIconContainer
                                 onPress={chatExists ? headerIconCallback(() => setDeleteModalVisible(true)) : () => null}
                             >
@@ -228,6 +235,23 @@ export default function ChatLayout() {
             />
         )
     }
+}
+
+function ChatWarnings() {
+
+    const subtleTextColor = useThemeColor("headerTintInactive")
+
+    function SubtleText(props: TextProps) {
+        return <Text {...props} style={[{ color: subtleTextColor }, props.style]} />
+    }
+
+    return (
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', width: '80%', rowGap: 15 }}>
+            <View style = {{height: 50}}/>
+            <SubtleText>LLM responses may contain errors, so it's wise to verify them.</SubtleText>
+            <SubtleText>LLM inference on less powerful mobile devices can lead to slowdowns and freezes.</SubtleText>
+        </View>
+    )
 }
 
 function showYouCantDoThatToast(message: string = "Wait until the app finishes answering") {
