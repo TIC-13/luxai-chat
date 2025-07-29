@@ -1,5 +1,6 @@
 import HTML from "@/components/HTML";
 import LoadingScreen from "@/components/LoadingScreen";
+import Separator from "@/components/Separator";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { useRagContext } from "@/contexts/RagContext";
@@ -35,6 +36,10 @@ export default function ContextModal() {
                                 <HTML>
                                     {markdown}
                                 </HTML>
+                                {
+                                    index !== parsedMarkdown.length - 1 &&
+                                    <Separator/>
+                                }
                             </View>
                         )
                     })
