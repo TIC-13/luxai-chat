@@ -90,7 +90,7 @@ export default function DonwnloadScreen() {
         return (
             <ProceedModal
                 title="Notification permission"
-                content="We're going to ask you for permission to send notifications, so we can keep you up about the download status"
+                content="We'll ask for permission to send you notifications so we can keep you updated on the download status."
                 close={() => setShowNotificationPermissionModal(false)}
                 isVisible={showNotificationPermissionModal}
                 onConfirm={() => setDownloadStarted(true)}
@@ -155,7 +155,7 @@ function DownloadModels() {
             }
             <LoadingModal
                 isVisible={isProcessingDownloads}
-                content="Processing the downloads, don't leave the app"
+                content="Processing downloads — please stay in the app."
             />
         </ThemedView>
     )
