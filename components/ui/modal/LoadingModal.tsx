@@ -26,7 +26,7 @@ export default function ProgressBarModal({ isVisible, content }: ProgressBarModa
                         </ModalText>
                     }
                     <Progress.Bar
-                        style = {{marginTop: 30}}
+                        style = {{marginTop: 15}}
                         indeterminate={true}
                         //progress={overallProgress}
                         height={10}

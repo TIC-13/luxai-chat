@@ -18,7 +18,7 @@ export default function ProceedModal({ close, isVisible, title, content, onConfi
             <ModalBackdrop onPress={close}>
                 <ModalContainer>
                     <ModalHeader>
-                        <ModalTitle>{title}</ModalTitle>
+                        <ModalTitle style = {{width: "90%", textAlignVertical: 'bottom', margin: 0, padding: 0}}>{title}</ModalTitle>
                     </ModalHeader>
                     <ModalText>
                         {content}
