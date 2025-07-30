@@ -5,12 +5,15 @@ import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { ContainerContentView, ContainerIconView } from "@/components/ui/containers/Container";
 import { InfoContainer, InfoContainerIcon, InfoContainerText, InfoContainerTitle } from "@/components/ui/containers/InfoContainer";
+import LoadingModal from "@/components/ui/modal/LoadingModal";
+import ProceedModal from "@/components/ui/modal/ProceedModal";
 import { DOWNLOADS } from "@/constants/Files";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import useCheckIfAllFilesDownloaded from "@/src/download/hooks/useCheckIfAllFilesDownloaded";
 import useSequentialDownload from "@/src/download/hooks/useSequentialDownload";
 import * as Crypto from "expo-crypto";
 import { Image } from 'expo-image';
+import * as Notifications from 'expo-notifications';
 import { router } from "expo-router";
 import React, { useState } from "react";
 import { Dimensions, StyleSheet, View } from "react-native";
@@ -19,11 +22,9 @@ import Toast from "react-native-toast-message";
 
 const { width } = Dimensions.get("window")
 
-export const startNewChat = () =>
-    router.replace({ pathname: "/chat/[id]", params: { id: Crypto.randomUUID() } })
-
 export default function DonwnloadScreen() {
     const [downloadStarted, setDownloadStarted] = useState(false);
+    const [showNotificationPermissionModal, setShowNotificationPermissionModal] = useState(false)
 
     const allFilesDownloaded = useCheckIfAllFilesDownloaded({
         onTrue: startNewChat
@@ -31,6 +32,15 @@ export default function DonwnloadScreen() {
 
     if (allFilesDownloaded === undefined)
         return <LoadingScreen />
+
+    async function onPressStartDownload() {
+        const notificationPermission = await allowsNotificationsAsync()
+        if (notificationPermission) {
+            setDownloadStarted(true)
+            return
+        }
+        setShowNotificationPermissionModal(true)
+    }
 
     return (
         <ThemedSafeAreaView style={styles.safeArea}>
@@ -50,7 +60,7 @@ export default function DonwnloadScreen() {
                         downloadStarted ?
                             <DownloadModels /> :
                             <Button
-                                onPress={() => setDownloadStarted(true)}
+                                onPress={onPressStartDownload}
                             >
                                 <ButtonIcon name="download" />
                                 <ButtonText>Start downloads</ButtonText>
@@ -70,8 +80,23 @@ export default function DonwnloadScreen() {
                     </ContainerContentView>
                 </InfoContainer>
             </View>
+
+            <BeforeStartDownloadModal />
+
         </ThemedSafeAreaView>
     );
+
+    function BeforeStartDownloadModal() {
+        return (
+            <ProceedModal
+                title="Notification permission"
+                content="We're going to ask you for permission to send notifications, so we can keep you up about the download status"
+                close={() => setShowNotificationPermissionModal(false)}
+                isVisible={showNotificationPermissionModal}
+                onConfirm={() => setDownloadStarted(true)}
+            />
+        )
+    }
 }
 
 function DownloadModels() {
@@ -90,6 +115,8 @@ function DownloadModels() {
         onError
     })
 
+    const isProcessingDownloads = currentFileName === null
+
     const progressBarFilledColor = useThemeColor('progressBarFilled')
     const progressBarUnfilledColor = useThemeColor('progressBarUnfilled')
 
@@ -107,15 +134,17 @@ function DownloadModels() {
                                     `Downloading ${currentFileName}`
                             }
                         </ThemedText>
-                        <Progress.Bar
-                            indeterminate={currentFileName == null}
-                            progress={overallProgress}
-                            width={width * 0.8}
-                            height={10}
-                            color={progressBarFilledColor}
-                            unfilledColor={progressBarUnfilledColor}
-                            borderWidth={0}
-                        />
+                        {
+                            !isProcessingDownloads &&
+                            <Progress.Bar
+                                progress={overallProgress}
+                                width={width * 0.8}
+                                height={10}
+                                color={progressBarFilledColor}
+                                unfilledColor={progressBarUnfilledColor}
+                                borderWidth={0}
+                            />
+                        }
                     </> :
                     <Button
                         onPress={retry}
@@ -124,8 +153,22 @@ function DownloadModels() {
                         <ButtonText>Retry download</ButtonText>
                     </Button>
             }
+            <LoadingModal
+                isVisible={isProcessingDownloads}
+                content="Processing the downloads, don't leave the app"
+            />
         </ThemedView>
     )
+}
+
+export const startNewChat = () =>
+    router.replace({ pathname: "/chat/[id]", params: { id: Crypto.randomUUID() } })
+
+export async function allowsNotificationsAsync() {
+    const settings = await Notifications.getPermissionsAsync();
+    return (
+        settings.granted || settings.ios?.status === Notifications.IosAuthorizationStatus.PROVISIONAL
+    );
 }
 
 const styles = StyleSheet.create({
@@ -180,9 +223,9 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
-    downloadButtonContainer: { 
-        height: 70, 
-        justifyContent: 'flex-start', 
+    downloadButtonContainer: {
+        height: 70,
+        justifyContent: 'flex-start',
         alignItems: 'center'
     }
 });

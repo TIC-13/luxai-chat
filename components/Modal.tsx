@@ -246,8 +246,8 @@ const styles = StyleSheet.create({
     modalText: {
         //marginBottom: 15,
         textAlign: 'center',
-        fontSize: 16,
-        lineHeight: 24,
+        fontSize: 14,
+        lineHeight: 22,
     },
     modalView: {
         margin: 20,
