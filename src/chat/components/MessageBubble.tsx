@@ -8,14 +8,14 @@ import { Animated, Pressable, StyleSheet, View } from "react-native";
 import useExapandMessage from "../hooks/useExpandMessage";
 import { LLMMessage } from "../types/LLMMessage";
 
-export default function MessageBubble({ message }: { message: LLMMessage }) {
+export default function MessageBubble({ message, isDecoding=false }: { message: LLMMessage, isDecoding?: boolean }) {
 
     const userBubbleColor = useThemeColor('userBubble')
     const systemBubbleColor = useThemeColor('systemBubble')
     const textColor = useThemeColor('text');
 
     const { setRagContexts } = useRagContext()
-    const {isExpanded, dynamicMessageWidth, toggleExpand} = useExapandMessage(message)
+    const { isExpanded, dynamicMessageWidth, toggleExpand } = useExapandMessage(message)
 
     function navigateToContextModal() {
         if (message.contexts === undefined || message.contexts.length === 0)
@@ -37,25 +37,27 @@ export default function MessageBubble({ message }: { message: LLMMessage }) {
                 }
             ]}
         >
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: "100%"}}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: "100%" }}>
                 {
                     message.contexts !== undefined && message.contexts.length > 0 &&
                     <ContextBubble onPress={navigateToContextModal} />
                 }
 
-                {message.message.role !== "user" && (
-                    <Pressable
-                        style={styles.expandButton}
-                        onPress={toggleExpand}
-                        android_ripple={{ color: systemBubbleColor, radius: 15 }}
-                    >
-                        <MaterialCommunityIcons
-                            name={isExpanded ? "arrow-collapse-horizontal" : "arrow-expand-horizontal"}
-                            size={16}
-                            color={textColor}
-                        />
-                    </Pressable>
-                )}
+                {
+                    message.message.role !== "user" && !isDecoding && (
+                        <Pressable
+                            style={styles.expandButton}
+                            onPress={toggleExpand}
+                            android_ripple={{ color: systemBubbleColor, radius: 15 }}
+                        >
+                            <MaterialCommunityIcons
+                                name={isExpanded ? "arrow-collapse-horizontal" : "arrow-expand-horizontal"}
+                                size={16}
+                                color={textColor}
+                            />
+                        </Pressable>
+                    )
+                }
             </View>
             <HTML>
                 {message.message.content}

@@ -49,7 +49,7 @@ export default function ChatLayout() {
     const scrollViewRef = useRef<Animated.ScrollView>(null);
 
     const { id } = useLocalSearchParams<{ id: string }>()
-    const { messages, sendMessage, isUnableToSend } = useLLM({
+    const { messages, sendMessage, isUnableToSend, isDecoding } = useLLM({
         conversationId: id,
         onMessagesUpdate: () => rollToBottom(scrollViewRef)
     })
@@ -107,17 +107,26 @@ export default function ChatLayout() {
                         >
                             <View style={{ height: headerHeight }} />
                             {
-                                messages.map((message, index) => (
-                                    <View
-                                        key={index}
-                                        style={[
-                                            styles.bubbleContainer,
-                                            message.message.role === 'user' ? styles.userBubbleContainer : styles.systemBubbleContainer
-                                        ]}
-                                    >
-                                        <MessageBubble key={index} message={parseMessageWithMarkdownImages(message, imagesDict)} />
-                                    </View>
-                                ))
+                                messages.map((message, index) => {
+                                    
+                                    const answerInProgress = isDecoding && index === messages.length - 1
+
+                                    return (
+                                        <View
+                                            key={index}
+                                            style={[
+                                                styles.bubbleContainer,
+                                                message.message.role === 'user' ? styles.userBubbleContainer : styles.systemBubbleContainer
+                                            ]}
+                                        >
+                                            <MessageBubble 
+                                                key={index} 
+                                                message={parseMessageWithMarkdownImages(message, imagesDict)} 
+                                                isDecoding={answerInProgress}
+                                            />
+                                        </View>
+                                    )
+                                })
                             }
                             <View style={{ height: 15 }} />
                         </Animated.ScrollView> :
@@ -246,12 +255,12 @@ function ChatWarnings() {
     }
 
     return (
-        <Animated.View 
+        <Animated.View
             entering={FadeIn}
             exiting={FadeOut}
             style={{ flex: 1, justifyContent: 'center', alignItems: 'center', width: '80%', rowGap: 15 }}
         >
-            <View style = {{height: 50}}/>
+            <View style={{ height: 50 }} />
             <SubtleText>LLM responses may contain errors, so it's wise to verify them.</SubtleText>
             <SubtleText>LLM inference on less powerful mobile devices can lead to slowdowns and freezes.</SubtleText>
         </Animated.View>
