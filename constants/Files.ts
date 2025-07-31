@@ -14,8 +14,8 @@ const TOKENIZER_NAME = "tokenizer_bge_small.json"
 const EMBEDDINGS_LINK = "https://drive.google.com/uc?export=download&id=18GMVf9HJbP0AWdvdbtNoOA19Rm2jE1-M"
 const EMBEDDINGS_NAME = "embeddings_razr_40.csv"
 
-const CHUNKS_LINK = "https://drive.google.com/uc?export=download&id=1FsnquEwAX5nkjIDXiui0GaNzc0Qel42n"
-const CHUNKS_NAME = "chunks_razr_40.txt"
+const CHUNKS_LINK = "https://drive.google.com/uc?export=download&id=18-VtMVHAv78JrVE4z3L_dvhLcN8QcIjF"
+const CHUNKS_NAME = "chunks_razr_40_v1.2.0.txt"
 
 const RERANKER_FILE_LINK = "https://huggingface.co/mixedbread-ai/mxbai-rerank-xsmall-v1/resolve/main/onnx/model.onnx"
 const RERANKER_FILE_NAME = "mxbai-reranker-xsmall.onnx"
