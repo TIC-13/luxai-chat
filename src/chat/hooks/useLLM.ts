@@ -29,7 +29,6 @@ export default function useLLM({ onMessagesUpdate, conversationId }: useLLMProps
 
     useEffect(() => {
         storeConversation(messages)
-        onMessagesUpdate?.(messages)
     }, [messages]);
 
     const isLoading = llama === null
@@ -98,7 +97,10 @@ export default function useLLM({ onMessagesUpdate, conversationId }: useLLMProps
             ...messages,
             { message: { role: 'user', content: prompt } },
         ];
+
         setMessages(newMessagesWithoutContextInPrompt);
+
+        onMessagesUpdate?.(newMessagesWithoutContextInPrompt)
 
         const ragOutput = await Rag.getPrompt(prompt, 2);
 
@@ -135,7 +137,9 @@ export default function useLLM({ onMessagesUpdate, conversationId }: useLLMProps
             }
 
             const updatedMessage = { ...lastMessage, contexts, message: { ...lastMessage.message, content: lastMessage.message.content + token } };
-            return [...prevMessages.slice(0, -1), updatedMessage];
+            const updatedMessages =  [...prevMessages.slice(0, -1), updatedMessage];
+            onMessagesUpdate?.(updatedMessages)
+            return updatedMessages
         });
     }
 

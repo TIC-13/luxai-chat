@@ -4,11 +4,19 @@ import { useRagContext } from "@/contexts/RagContext";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
+import { useEffect } from "react";
 import { Animated, Pressable, StyleSheet, View } from "react-native";
 import useExapandMessage from "../hooks/useExpandMessage";
 import { LLMMessage } from "../types/LLMMessage";
 
-export default function MessageBubble({ message, isDecoding = false }: { message: LLMMessage, isDecoding?: boolean }) {
+
+type MessageBubbleProps = {
+    message: LLMMessage,
+    isDecoding?: boolean,
+    onRerender?: () => void
+}
+
+export default function MessageBubble({ message, isDecoding = false, onRerender }: MessageBubbleProps) {
 
     const userBubbleColor = useThemeColor('userBubble')
     const systemBubbleColor = useThemeColor('systemBubble')
@@ -23,6 +31,11 @@ export default function MessageBubble({ message, isDecoding = false }: { message
         setRagContexts(message.contexts)
         router.navigate("/context")
     }
+
+    useEffect(() => {
+        const timeoutId = setTimeout(() => onRerender?.(), 500)
+        return () => clearTimeout(timeoutId)
+    }, [message])
 
     return (
         <Animated.View
@@ -61,7 +74,7 @@ export default function MessageBubble({ message, isDecoding = false }: { message
             </View>
             {
                 message.message.role === "user" ?
-                    <ThemedText style = {styles.userText}>
+                    <ThemedText style={styles.userText}>
                         {message.message.content}
                     </ThemedText> :
                     <HTML>

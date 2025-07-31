@@ -20,9 +20,9 @@ import { useHeaderHeight } from "@react-navigation/elements";
 import { DrawerActions } from "@react-navigation/native";
 import { useLocalSearchParams, useNavigation } from "expo-router";
 import Drawer from "expo-router/drawer";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { Platform, StyleSheet, Text, TextProps, ToastAndroid, View } from "react-native";
-import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
+import Animated, { FadeIn, FadeOut, useAnimatedRef } from "react-native-reanimated";
 import Toast from "react-native-toast-message";
 import { startNewChat } from "../../(download)";
 
@@ -46,12 +46,12 @@ interface ApiResponse<T> {
 
 export default function ChatLayout() {
 
-    const scrollViewRef = useRef<Animated.ScrollView>(null);
+    const animatedScrollRef = useAnimatedRef<Animated.ScrollView>()
 
     const { id } = useLocalSearchParams<{ id: string }>()
     const { messages, sendMessage, isUnableToSend, isDecoding } = useLLM({
         conversationId: id,
-        onMessagesUpdate: () => rollToBottom(scrollViewRef)
+        onMessagesUpdate: () => rollToBottom(animatedScrollRef)
     })
 
     const imagesDict = useGetDictionayOfImagesFromManual()
@@ -98,18 +98,18 @@ export default function ChatLayout() {
             <View
                 style={styles.mainContainer}
             >
-
                 {
                     chatExists ?
                         <Animated.ScrollView
-                            ref={scrollViewRef}
+                            ref={animatedScrollRef}
                             style={styles.bubblesContainer}
                         >
                             <View style={{ height: headerHeight }} />
                             {
                                 messages.map((message, index) => {
-                                    
-                                    const answerInProgress = isDecoding && index === messages.length - 1
+
+                                    const isLast = index === messages.length - 1
+                                    const answerInProgress = isDecoding && isLast
 
                                     return (
                                         <View
@@ -119,14 +119,15 @@ export default function ChatLayout() {
                                                 message.message.role === 'user' ? styles.userBubbleContainer : styles.systemBubbleContainer
                                             ]}
                                         >
-                                            <MessageBubble 
-                                                key={index} 
+                                            <MessageBubble
+                                                key={index}
                                                 message={
-                                                    message.message.role === "user"?
-                                                        message:
+                                                    message.message.role === "user" ?
+                                                        message :
                                                         parseMessageWithMarkdownImages(message, imagesDict)
-                                                } 
+                                                }
                                                 isDecoding={answerInProgress}
+                                                onRerender={isLast? () => rollToBottom(animatedScrollRef): undefined}
                                             />
                                         </View>
                                     )
@@ -143,7 +144,7 @@ export default function ChatLayout() {
                         onSend={(prompt) => {
                             sendMessage(prompt)
                         }}
-                        onPress={() => rollToBottom(scrollViewRef)}
+                        onPress={() => rollToBottom(animatedScrollRef)}
                     />
                 </View>
                 <KeyboardSpacer />
