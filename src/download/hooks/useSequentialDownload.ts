@@ -1,21 +1,187 @@
+import { AppVersion } from "@/app.config";
 import { checkIfFileExists, deleteDir, ensureDirExists, getUnzippedDirPath } from '@/src/download/utils/fileUtils';
 import * as FileSystem from 'expo-file-system';
+import * as Notifications from 'expo-notifications';
 import { useEffect, useState } from 'react';
+import { Platform } from 'react-native';
 import { unzip } from "react-native-zip-archive";
 import { storeImagesDict } from '../utils/markdownImagesUtils';
 import { useDownloadProps } from './useDownload';
 
+const DOWNLOAD_NOTIFICATION_ID = 'download-progress-notification';
+const COMPLETION_NOTIFICATION_ID = 'download-completion-notification';
+
+Notifications.setNotificationHandler({
+    handleNotification: async () => ({
+        shouldShowAlert: false,
+        shouldPlaySound: false,
+        shouldSetBadge: false,
+        shouldShowBanner: false,
+        shouldShowList: true
+    }),
+});
+
+const setupNotificationCategories = async () => {
+    await Notifications.setNotificationCategoryAsync('download-progress', [
+    ], {
+        allowInCarPlay: false,
+        allowAnnouncement: false,
+        showTitle: true,
+        showSubtitle: true,
+    });
+
+    await Notifications.setNotificationCategoryAsync('download-complete', []);
+    await Notifications.setNotificationCategoryAsync('download-error', []);
+
+    if (Platform.OS === 'android') {
+        await Notifications.setNotificationChannelAsync('download-progress', {
+            name: 'Download Progress',
+            importance: Notifications.AndroidImportance.LOW, // Low importance = less intrusive
+            vibrationPattern: null, // No vibration
+            sound: null, // No sound
+            enableLights: false,
+            enableVibrate: false,
+            showBadge: false,
+        });
+
+        await Notifications.setNotificationChannelAsync('download-complete', {
+            name: 'Download Complete',
+            importance: Notifications.AndroidImportance.HIGH,
+            vibrationPattern: [0, 250, 250, 250],
+            sound: 'default',
+            enableLights: true,
+            enableVibrate: true,
+            showBadge: true,
+        });
+
+        await Notifications.setNotificationChannelAsync('download-error', {
+            name: 'Download Error',
+            importance: Notifications.AndroidImportance.HIGH,
+            vibrationPattern: [0, 250, 250, 250],
+            sound: 'default',
+            enableLights: true,
+            enableVibrate: true,
+            showBadge: true,
+        });
+    }
+};
+
 type useSequentialDownloadProps = {
     downloads: useDownloadProps[];
     onAllFinished?: () => void;
-    onError?: () => void
+    onError?: () => void;
+    enableBackgroundDownload?: boolean;
+    showNotification?: boolean; // New prop to enable/disable notifications
 };
 
 type DownloadWithSize = useDownloadProps & {
     fileSize?: number;
 };
 
-export default function useSequentialDownload({ downloads, onAllFinished, onError }: useSequentialDownloadProps) {
+type DownloadState = {
+    currentIndex: number;
+    downloads: DownloadWithSize[];
+    downloadedBytes: number;
+    totalBytes: number;
+};
+
+
+// Notification helper functions
+const updateProgressNotification = async (
+    currentFile: number,
+    totalFiles: number,
+    fileName: string,
+    downloadedBytes: number,
+    totalBytes: number
+) => {
+    try {
+        const overallProgress = totalBytes > 0 ? (downloadedBytes / totalBytes) * 100 : ((currentFile - 1) / totalFiles) * 100;
+        const progressText = totalBytes > 0
+            ? `${formatBytes(downloadedBytes)} / ${formatBytes(totalBytes)}`
+            : `${currentFile} / ${totalFiles} files`;
+
+        await Notifications.scheduleNotificationAsync({
+            identifier: DOWNLOAD_NOTIFICATION_ID,
+            content: {
+                title: `${AppVersion.name} - Downloading Files`,
+                body: `${progressText} (${Math.round(overallProgress)}%)`,
+                data: { progress: overallProgress },
+                categoryIdentifier: 'download-progress',
+                // Background notification settings
+                sound: false,
+                priority: Notifications.AndroidNotificationPriority.LOW,
+            },
+            trigger: null, // Show immediately
+        });
+    } catch (error) {
+        console.error('Failed to update progress notification:', error);
+    }
+};
+
+const showCompletionNotification = async () => {
+    try {
+        // Cancel and dismiss previous notifications
+        await Notifications.cancelScheduledNotificationAsync(DOWNLOAD_NOTIFICATION_ID);
+        await Notifications.cancelScheduledNotificationAsync(COMPLETION_NOTIFICATION_ID);
+
+        await Notifications.dismissNotificationAsync(COMPLETION_NOTIFICATION_ID);
+        await Notifications.dismissNotificationAsync(DOWNLOAD_NOTIFICATION_ID);
+
+        // Show completion notification
+        await Notifications.scheduleNotificationAsync({
+            identifier: COMPLETION_NOTIFICATION_ID,
+            content: {
+                title: `${AppVersion.name} - Downloads Complete`,
+                body: "All files have been downloaded successfully!",
+                sound: true,
+                badge: 1,
+                priority: Notifications.AndroidNotificationPriority.HIGH,
+                categoryIdentifier: 'download-complete',
+            },
+            trigger: null,
+        });
+    } catch (error) {
+        console.error('Failed to show completion notification:', error);
+    }
+};
+
+const showErrorNotification = async () => {
+    try {
+        // Cancel the progress notification
+        await Notifications.cancelScheduledNotificationAsync(DOWNLOAD_NOTIFICATION_ID);
+
+        // Show error notification
+        await Notifications.scheduleNotificationAsync({
+            content: {
+                title: "Download Failed",
+                body: "An error occurred during download. Please try again.",
+                sound: true,
+                badge: 1,
+                priority: Notifications.AndroidNotificationPriority.HIGH,
+                categoryIdentifier: 'download-error',
+            },
+            trigger: null,
+        });
+    } catch (error) {
+        console.error('Failed to show error notification:', error);
+    }
+};
+
+const formatBytes = (bytes: number): string => {
+    if (bytes === 0) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+};
+
+export default function useSequentialDownload({
+    downloads,
+    onAllFinished,
+    onError,
+    enableBackgroundDownload = false,
+    showNotification = true
+}: useSequentialDownloadProps) {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [overallProgress, setOverallProgress] = useState(0);
     const [isAllDownloaded, setIsAllDownloaded] = useState(false);
@@ -25,8 +191,47 @@ export default function useSequentialDownload({ downloads, onAllFinished, onErro
     const [downloadsWithSizes, setDownloadsWithSizes] = useState<DownloadWithSize[]>([]);
     const [totalBytes, setTotalBytes] = useState(0);
     const [downloadedBytes, setDownloadedBytes] = useState(0);
+    const [error, setError] = useState<Error | undefined>(undefined);
+    const [isBackgroundTaskRegistered, setIsBackgroundTaskRegistered] = useState(false);
 
-    const [error, setError] = useState<Error | undefined>(undefined)
+    // Request notification permissions and setup categories
+    useEffect(() => {
+        if (showNotification) {
+            requestNotificationPermissions();
+            setupNotificationCategories();
+        }
+    }, [showNotification]);
+
+    const requestNotificationPermissions = async () => {
+        try {
+            const { status } = await Notifications.requestPermissionsAsync();
+            if (status !== 'granted') {
+                console.warn('Notification permissions not granted');
+            }
+        } catch (error) {
+            console.error('Failed to request notification permissions:', error);
+        }
+    };
+
+    // Update notification with current progress
+    const updateNotification = async () => {
+        if (!showNotification || !currentFileName) return;
+
+        await updateProgressNotification(
+            currentIndex + 1,
+            downloadsWithSizes.length,
+            currentFileName,
+            downloadedBytes + (currentFileProgress * (downloadsWithSizes[currentIndex]?.fileSize || 0)),
+            totalBytes
+        );
+    };
+
+    // Update notification when progress changes
+    useEffect(() => {
+        if (!isChecking && !isAllDownloaded && currentFileName) {
+            updateNotification();
+        }
+    }, [overallProgress, currentFileName, downloadedBytes, currentFileProgress]);
 
     // Fetch file sizes for all downloads
     useEffect(() => {
@@ -36,11 +241,10 @@ export default function useSequentialDownload({ downloads, onAllFinished, onErro
 
             for (const download of downloads) {
                 try {
-                    // Make a HEAD request to get file size without downloading
                     const response = await fetch(download.downloadLink, { method: 'HEAD' });
                     const contentLength = response.headers.get('content-length');
                     const fileSize = contentLength ? parseInt(contentLength) : 0;
-                    
+
                     updatedDownloads.push({
                         ...download,
                         fileSize
@@ -48,7 +252,6 @@ export default function useSequentialDownload({ downloads, onAllFinished, onErro
                     total += fileSize;
                 } catch (error) {
                     console.warn(`Could not fetch size for ${download.filename}:`, error);
-                    // Fallback to equal weighting if size cannot be determined
                     updatedDownloads.push({
                         ...download,
                         fileSize: 0
@@ -90,9 +293,7 @@ export default function useSequentialDownload({ downloads, onAllFinished, onErro
             setDownloadedBytes(alreadyDownloadedBytes);
 
             if (allExist) {
-                setOverallProgress(1);
-                setIsAllDownloaded(true);
-                if (onAllFinished) onAllFinished();
+                await downloadFinishedCallback()
             } else {
                 setCurrentIndex(firstNonExistingIndex);
                 setCurrentFileName(downloadsWithSizes[firstNonExistingIndex].filename);
@@ -103,13 +304,23 @@ export default function useSequentialDownload({ downloads, onAllFinished, onErro
         };
 
         checkAllFiles();
-    }, [downloadsWithSizes]);
+    }, [downloadsWithSizes, enableBackgroundDownload, showNotification]);
+
+    async function downloadFinishedCallback() {
+        setOverallProgress(1);
+        setIsAllDownloaded(true);
+        // Show completion notification
+        if (showNotification) {
+            await showCompletionNotification();
+        }
+        if (onAllFinished) onAllFinished();
+    }
 
     useEffect(() => {
-        handleDownloadsSequnetially()
+        handleDownloadsSequentially()
     }, [currentIndex, isChecking, isAllDownloaded]);
 
-    async function handleDownloadsSequnetially() {
+    async function handleDownloadsSequentially() {
         if (isChecking || isAllDownloaded || downloadsWithSizes.length === 0) return;
 
         const currentDownload = downloadsWithSizes[currentIndex];
@@ -138,94 +349,138 @@ export default function useSequentialDownload({ downloads, onAllFinished, onErro
                 await ensureDirExists(tempDirPath);
                 await ensureDirExists(saveFolderPath);
 
-                const downloadableResumable = FileSystem.createDownloadResumable(
-                    downloadLink,
-                    tempFilePath,
-                    {},
-                    (progressData) => {
-                        const progress = progressData.totalBytesWritten / progressData.totalBytesExpectedToWrite;
-                        setCurrentFileProgress(progress);
-                        
-                        // Update overall progress based on bytes
-                        const currentFileBytes = progressData.totalBytesWritten;
-                        updateOverallProgressByBytes(downloadedBytes, currentFileBytes);
+                if (enableBackgroundDownload) {
+                    // For background downloads, use simple downloadAsync without progress
+                    const downloadResult = await FileSystem.downloadAsync(downloadLink, tempFilePath);
+
+                    if (downloadResult.status === 200) {
+                        await FileSystem.moveAsync({
+                            from: tempFilePath,
+                            to: completePath
+                        });
+
+                        setDownloadedBytes(prev => prev + fileSize);
+
+                        if (filename.endsWith(".zip")) {
+                            await unzipFile(completePath);
+                        }
+
+                        if (onFinished) onFinished();
+                        handleDownloadComplete();
                     }
-                );
+                } else {
+                    // Foreground download with progress
+                    const downloadableResumable = FileSystem.createDownloadResumable(
+                        downloadLink,
+                        tempFilePath,
+                        {},
+                        (progressData) => {
+                            const progress = progressData.totalBytesWritten / progressData.totalBytesExpectedToWrite;
 
-                const downloadResult = await downloadableResumable.downloadAsync();
+                            setCurrentFileProgress(progress);
 
-                if (downloadResult) {
-                    await FileSystem.moveAsync({
-                        from: tempFilePath,
-                        to: completePath
-                    });
+                            const currentFileBytes = progressData.totalBytesWritten;
+                            const overallProgress = updateOverallProgressByBytes(downloadedBytes, currentFileBytes);
 
-                    // Update downloaded bytes for completed file
-                    setDownloadedBytes(prev => prev + fileSize);
+                            if (overallProgress >= 1 && !isAllDownloaded) {
+                                downloadFinishedCallback()
+                            }
+                        }
+                    );
 
-                    if (filename.endsWith(".zip")) {
-                        await unzipFile(completePath)
+                    const downloadResult = await downloadableResumable.downloadAsync();
+
+                    if (downloadResult) {
+                        await FileSystem.moveAsync({
+                            from: tempFilePath,
+                            to: completePath
+                        });
+
+                        setDownloadedBytes(prev => prev + fileSize);
+
+                        if (filename.endsWith(".zip")) {
+                            await unzipFile(completePath);
+                        }
+
+                        if (onFinished) onFinished();
+                        handleDownloadComplete();
                     }
-
-                    if (onFinished) onFinished();
-                    handleDownloadComplete();
                 }
             } catch (error) {
                 console.error("Download failed:", error);
-                setError(error as Error)
-                if (onError) onError()
-                // Handle error as needed
+                setError(error as Error);
+                if (showNotification) {
+                    await showErrorNotification();
+                }
+                if (onError) onError();
             }
         };
 
         downloadFile();
     }
 
-    // Helper function to move to the next download or finish
-    const handleDownloadComplete = () => {
-        if (currentIndex + 1 < downloadsWithSizes.length) {
-            setCurrentIndex(prevIndex => prevIndex + 1);
+    const handleDownloadComplete = async () => {
+        const nextIndex = currentIndex + 1;
+
+        if (nextIndex < downloadsWithSizes.length) {
+            setCurrentIndex(nextIndex);
             setCurrentFileProgress(0);
         } else {
             setIsAllDownloaded(true);
             setOverallProgress(1);
+
+            // Show completion notification
+            if (showNotification) {
+                await showCompletionNotification();
+            }
+
             if (onAllFinished) onAllFinished();
         }
     };
 
     const unzipFile = async (completePath: string) => {
         try {
-            console.log("ZIP path:", completePath)
-            const pathUnzipped = getUnzippedDirPath(completePath)
-            await ensureDirExists(pathUnzipped)
-            const resultPath = await unzip(completePath, pathUnzipped)
+            console.log("ZIP path:", completePath);
+            const pathUnzipped = getUnzippedDirPath(completePath);
+            await ensureDirExists(pathUnzipped);
+            const resultPath = await unzip(completePath, pathUnzipped);
             console.log('Files in ZIP:', resultPath);
 
-            await storeImagesDict()
-
+            await storeImagesDict();
         } catch (error) {
             console.error('Error listing ZIP contents:', error);
         }
-    }
+    };
 
-    // Helper function to calculate overall progress based on bytes
     const updateOverallProgressByBytes = (completedBytes: number, currentFileBytes: number) => {
+        let overallProgress = 0
+
         if (totalBytes === 0) {
-            // Fallback to equal weighting if total size is unknown
             const completedPortions = currentIndex;
             const currentPortion = currentFileProgress;
             const totalItems = downloadsWithSizes.length;
-            setOverallProgress((completedPortions + currentPortion) / totalItems);
+            overallProgress = (completedPortions + currentPortion) / totalItems
         } else {
             const totalDownloadedBytes = completedBytes + currentFileBytes;
-            setOverallProgress(Math.min(totalDownloadedBytes / totalBytes, 1));
+            overallProgress = Math.min(totalDownloadedBytes / totalBytes, 1)
         }
+        setOverallProgress(overallProgress)
+        return overallProgress
     };
 
     const retry = () => {
-        setError(undefined)
-        handleDownloadsSequnetially()
-    }
+        setError(undefined);
+        handleDownloadsSequentially();
+    };
+
+    // Cleanup notification on unmount
+    useEffect(() => {
+        return () => {
+            if (showNotification) {
+                Notifications.cancelScheduledNotificationAsync(DOWNLOAD_NOTIFICATION_ID);
+            }
+        };
+    }, [showNotification]);
 
     return {
         overallProgress,
@@ -235,8 +490,8 @@ export default function useSequentialDownload({ downloads, onAllFinished, onErro
         isLoading: isChecking,
         error,
         retry,
-        // Additional info that might be useful
         totalBytes,
-        downloadedBytes
+        downloadedBytes,
+        isBackgroundTaskRegistered
     };
 }

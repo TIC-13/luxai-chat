@@ -73,6 +73,13 @@ export default {
         "expo-splash-screen",
         AppVersion.splashScreenConfig
       ],
+      [
+        "expo-notifications",
+        {
+          icon: "./assets/images/notification_icon.png",
+          color: "#ffffff",
+        }
+      ]
     ],
     experiments: {
       typedRoutes: true,
