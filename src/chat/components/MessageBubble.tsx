@@ -8,7 +8,7 @@ import { Animated, Pressable, StyleSheet, View } from "react-native";
 import useExapandMessage from "../hooks/useExpandMessage";
 import { LLMMessage } from "../types/LLMMessage";
 
-export default function MessageBubble({ message, isDecoding=false }: { message: LLMMessage, isDecoding?: boolean }) {
+export default function MessageBubble({ message, isDecoding = false }: { message: LLMMessage, isDecoding?: boolean }) {
 
     const userBubbleColor = useThemeColor('userBubble')
     const systemBubbleColor = useThemeColor('systemBubble')
@@ -59,9 +59,16 @@ export default function MessageBubble({ message, isDecoding=false }: { message: 
                     )
                 }
             </View>
-            <HTML>
-                {message.message.content}
-            </HTML>
+            {
+                message.message.role === "user" ?
+                    <ThemedText style = {styles.userText}>
+                        {message.message.content}
+                    </ThemedText> :
+                    <HTML>
+                        {message.message.content}
+                    </HTML>
+            }
+
         </Animated.View>
     )
 }
@@ -95,7 +102,7 @@ const styles = StyleSheet.create({
         position: 'relative',
     },
     userBubble: {
-        borderBottomEndRadius: 0,
+        borderBottomEndRadius: 0
     },
     systemBubble: {
         borderBottomStartRadius: 0
@@ -126,4 +133,7 @@ const styles = StyleSheet.create({
         textAlignVertical: 'center',
         fontSize: 13,
     },
+    userText: {
+        textAlignVertical: 'center'
+    }
 })

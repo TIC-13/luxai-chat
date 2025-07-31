@@ -121,7 +121,11 @@ export default function ChatLayout() {
                                         >
                                             <MessageBubble 
                                                 key={index} 
-                                                message={parseMessageWithMarkdownImages(message, imagesDict)} 
+                                                message={
+                                                    message.message.role === "user"?
+                                                        message:
+                                                        parseMessageWithMarkdownImages(message, imagesDict)
+                                                } 
                                                 isDecoding={answerInProgress}
                                             />
                                         </View>
