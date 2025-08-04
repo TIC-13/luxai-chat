@@ -35,7 +35,7 @@ export default {
   expo: {
     name: AppVersion.name,
     slug: "rag-chat",
-    version: "1.0.0",
+    version: "1.2.0",
     orientation: "portrait",
     icon: AppVersion.icon,
     scheme: "ragchat",
