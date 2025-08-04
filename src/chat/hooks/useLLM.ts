@@ -5,6 +5,8 @@ import { initLlama, LlamaContext, RNLlamaOAICompatibleMessage } from "llama.rn";
 import { useEffect, useState } from "react";
 import { conversations } from '../utils/storeConversations';
 
+const SYSTEM_MESSAGE = "You are an agent that guides the user with a step-by-step guide. Feel free to answer the question in markdown"
+
 type useLLMProps = {
     onMessagesUpdate?: (messages: LLMMessage[]) => void,
     conversationId: string
@@ -102,11 +104,13 @@ export default function useLLM({ onMessagesUpdate, conversationId }: useLLMProps
 
         onMessagesUpdate?.(newMessagesWithoutContextInPrompt)
 
-        const ragOutput = await Rag.getPrompt(prompt, 2);
+        const { query, contexts } = await Rag.getPrompt(prompt, 2);
+
+        const llmPrompt = createPrompt(contexts, query)
 
         const newMessagesWithContextInPrompt = [
             ...messages,
-            { message: { role: 'user', content: ragOutput.userMessage } },
+            { message: { role: 'user', content: llmPrompt } },
         ];
 
         completePrompt({
@@ -114,7 +118,7 @@ export default function useLLM({ onMessagesUpdate, conversationId }: useLLMProps
             messages: [
                 {
                     role: 'system',
-                    content: ragOutput.systemMessage + ". Feel free to answer the question in markdown",
+                    content: SYSTEM_MESSAGE,
                 },
                 ...newMessagesWithContextInPrompt.map((message) => message.message),
             ],
@@ -122,7 +126,7 @@ export default function useLLM({ onMessagesUpdate, conversationId }: useLLMProps
                 setIsDecoding(false);
             },
             onDecodeToken: (token) => {
-                addTokenToLastLLMMessage(token, ragOutput.contexts);
+                addTokenToLastLLMMessage(token, contexts);
             },
         });
     }
@@ -187,4 +191,20 @@ async function completePrompt({ context, messages, onEnd, onDecodeToken }: Compl
         },
     )
     onEnd()
+}
+
+function createPrompt(contexts: string[], query: string): string {
+    return "You are a Moto Razr 40 manual assistant." +
+           "\n\n" +
+           contexts.join(" ") +
+           "\n\n" +
+           query +
+           "\n\n" +
+           "RULES:\n" +
+           "- USE only the context to answer;\n" +
+           "- IF information is missing or irrelevant, REPLY \"I can't answer that.\"\n" +
+           "FILTER relevant contents.\n" +
+           "IF a \"image:…\" tag is present and relevant, USE it.\n" +
+           "\n\n" +
+           "ANSWER:";
 }

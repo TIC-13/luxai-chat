@@ -8,10 +8,7 @@ type RagModuleType = {
 };
 
 type RagPrompt = {
-  systemMessage: string;
   query: string;
-  instructions: string;
-  userMessage: string;
   contexts: string[];
 }
 
