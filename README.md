@@ -82,12 +82,12 @@ When deploying an instance of the app, the backend is optional. If you choose to
 ## Motorola theme
 
 This app supports a Motorola theme that changes the app's name, icon, and colors to match the Motorola brand.
-To activate it, set the environment variable `EXPO_PUBLIC_APP` to `RAZR_40`.
+To activate it, set the environment variable `EXPO_PUBLIC_APP` to `MOTOROLA`.
 
 ## 📝 Usage
 
 1. Launch the app on your Android device
 2. Wait for the initial model downloads to complete
-3. Start asking questions about the Moto Razr 40 manual
+3. Start asking questions about the Moto Razr 60 Ultra manual
 4. The AI will provide relevant answers with supporting images when available
 5. Chat history is stored locally and can be cleared from within the app

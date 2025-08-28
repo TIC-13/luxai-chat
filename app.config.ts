@@ -14,9 +14,9 @@ const LuxAIChat = {
 }
 
 const MotorolaChat = {
-  name: "Moto Chat Razr 40",
+  name: "Moto Chat Razr 60 Ultra",
   icon: "./assets/images/motorola_icon.png",
-  androidPackage: "com.luxai.razr40",
+  androidPackage: "com.luxai.razr60ultra",
   splashScreenConfig: {
     backgroundColor: "#fff",
     image: "./assets/images/motorola_splash_screen.png",
@@ -29,13 +29,13 @@ const MotorolaChat = {
   },
 }
 
-const AppVersion = process.env.EXPO_PUBLIC_APP === "RAZR_40"? MotorolaChat: LuxAIChat;
+const AppVersion = process.env.EXPO_PUBLIC_APP === "MOTOROLA"? MotorolaChat: LuxAIChat;
 
 export default {
   expo: {
     name: AppVersion.name,
     slug: "rag-chat",
-    version: "1.2.0",
+    version: "1.2.1",
     orientation: "portrait",
     icon: AppVersion.icon,
     scheme: "ragchat",
@@ -50,6 +50,7 @@ export default {
     android: {
       edgeToEdgeEnabled: true,
       package: AppVersion.androidPackage,
+      versionCode: 5
     },
     web: {
       bundler: "metro",

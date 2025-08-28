@@ -194,7 +194,7 @@ async function completePrompt({ context, messages, onEnd, onDecodeToken }: Compl
 }
 
 function createPrompt(contexts: string[], query: string): string {
-    return "You are a Moto Razr 40 manual assistant." +
+    return "You are a Moto Razr 60 Ultra manual assistant." +
            "\n\n" +
            contexts.join(" ") +
            "\n\n" +
