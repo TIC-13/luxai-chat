@@ -82,12 +82,10 @@ export async function storeImagesDict() {
 }
 
 export const parseImagesToHTMLTags = (markdownText: string, imagesObject: ImagesDict) => {
-    
-    console.log("mardown text", markdownText)
-    
-    const imagesTags = [...new Set(markdownText.match(/`?image:[^\s,.*'"`)]+`?/gi) || [])].map(tag => ({
+
+    const imagesTags = [...new Set(markdownText.match(/image:[^\s,.*'"`)]+/gi) || [])].map(tag => ({
         full: tag,
-        clean: tag.replace(/`/g, '').toLowerCase()
+        clean: tag.toLowerCase()
     }));
 
     let newMarkdown = markdownText
@@ -103,7 +101,7 @@ export const parseImagesToHTMLTags = (markdownText: string, imagesObject: Images
 
         newMarkdown = newMarkdown.replaceAll(tag.full,
             base64Image !== undefined ?
-               `<img width="${width}" height="${height}" src="${base64Image}" style="max-width=${width}px"/>` :
+                `<img width="${width}" height="${height}" src="${base64Image}" style="max-width=${width}px"/>` :
                 tag.clean
         )
     }
